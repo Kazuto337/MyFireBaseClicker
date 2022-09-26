@@ -4365,7 +4365,8 @@ MonoBehaviour:
   registerPassword: {fileID: 1689249842}
   registerConfirmPassword: {fileID: 1132663016}
   registerOutputText: {fileID: 404922394}
-  score: 0
+  url: https://easyclicker-2022-default-rtdb.firebaseio.com/
+  scoreText: {fileID: 0}
 --- !u!4 &2094266804
 Transform:
   m_ObjectHideFlags: 0

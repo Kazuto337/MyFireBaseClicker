@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.Networking;
 using Firebase;
 using Firebase.Auth;
 using Firebase.Database;
@@ -28,10 +29,7 @@ public class FireBaseManager : MonoBehaviour
     [SerializeField] Text registerConfirmPassword;
     [SerializeField] Text registerOutputText;
     [Space(5f)]
-
-    [Header("UserData")]
     static FireBaseManager _instance;
-    [SerializeField] float score;
     public static FireBaseManager instance
     {
         get
@@ -39,6 +37,7 @@ public class FireBaseManager : MonoBehaviour
             return _instance;
         }
     }
+
     private void Awake()
     {
         DontDestroyOnLoad(gameObject);
@@ -61,14 +60,20 @@ public class FireBaseManager : MonoBehaviour
                 Debug.LogError("Could not resolve all Firebase dependencies: " + dependencyStatus);
             }
         });
+        
     }
+
+    private void Start()
+    {
+        
+    }
+
     private void InitializeFirebase()
     {
         auth = FirebaseAuth.DefaultInstance;
 
         auth.StateChanged += AuthStateChanged;
         AuthStateChanged(this, null);
-        dbReference = FirebaseDatabase.DefaultInstance.RootReference;
     }
 
     private void AuthStateChanged(object sender, System.EventArgs eventArgs)
@@ -112,11 +117,6 @@ public class FireBaseManager : MonoBehaviour
         auth.SignOut();
         GameManager.instance.ChangeScene(0);
         ClearOutputs();
-    }
-
-    public void SaveDataButton()
-    {
-        StartCoroutine(UpdateScore(score));
     }
 
     IEnumerator Login(string _email, string _password)
@@ -255,21 +255,4 @@ public class FireBaseManager : MonoBehaviour
             }
         }
     }
-
-    IEnumerator UpdateScore(float _score)
-    {
-        var dbTask = dbReference.Child("users").Child(user.UserId).Child("LastScore").SetValueAsync(_score);
-
-        yield return new WaitUntil(predicate: () => dbTask.IsCompleted);
-
-        if (dbTask.Exception != null)
-        {
-            Debug.LogWarning(message: $"Failed to register task with {dbTask.Exception}");
-        }
-        else
-        {
-            //Deaths are now updated
-        }
-    }
-
 }
