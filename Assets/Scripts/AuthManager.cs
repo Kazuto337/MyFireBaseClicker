@@ -14,6 +14,7 @@ public class AuthManager : MonoBehaviour
     [SerializeField] GameObject titleUI;
     [SerializeField] GameObject verifyEmailUI;
     [SerializeField] Text verifyEmailText;
+    public Text emailSentText;
     public static AuthManager instance
     {
         get
@@ -34,6 +35,7 @@ public class AuthManager : MonoBehaviour
         loginUI.SetActive(false);
         registerUI.SetActive(false);
         titleUI.SetActive(false);
+        emailSentText.gameObject.SetActive(false);
         FireBaseManager.instance.ClearOutputs();
     }
     public void LoginScreen()
@@ -50,6 +52,20 @@ public class AuthManager : MonoBehaviour
     {
         ClearUI();
         titleUI.SetActive(true);
+    }
+    public void AwaitVerification(bool _emailSent, string _email, string _output)
+    {
+        ClearUI();
+        verifyEmailUI.SetActive(true);
+
+        if (_emailSent)
+        {
+            verifyEmailText.text = $"Email Sent\n Please Verify {_email} ";
+        }
+        else
+        {
+            verifyEmailText.text = $"Email not Sent : {_output}\n Please Verify {_email} ";
+        }
     }
 
 }
