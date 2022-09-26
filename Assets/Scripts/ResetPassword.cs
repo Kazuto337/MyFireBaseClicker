@@ -7,17 +7,9 @@ using Firebase.Auth;
 public class ResetPassword : MonoBehaviour
 {
     [SerializeField] InputField emailField;
-    [SerializeField] Button resetPasswordButton;
     [SerializeField] Text output;
 
-    void Awake()
-    {
-        resetPasswordButton = GetComponent<Button>();
-
-        resetPasswordButton.onClick.AddListener(ForgotPasswordButton);
-    }
-
-    private void ForgotPasswordButton()
+    public void ResetPasswordButton()
     {
         string email = emailField.text;
         StartCoroutine(SendEmail(email));
