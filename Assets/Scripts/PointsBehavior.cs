@@ -1,11 +1,10 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
-using System.Linq;
+using Firebase.Auth;
 using Firebase.Database;
-using Firebase;
 using Firebase.Extensions;
+using UnityEngine.UI;
 
 public class PointsBehavior : MonoBehaviour
 {
@@ -57,22 +56,29 @@ public class PointsBehavior : MonoBehaviour
         statsScreen.SetActive(true);
         gameScreen.SetActive(false);
 
-        var dbTask = dbReference.Child("users").OrderByChild("score").GetValueAsync();
-        DataSnapshot snapshot = dbTask.Result;
-
-        foreach (Transform child in scoreboardContent.transform)
+        FirebaseDatabase.DefaultInstance.GetReference("users/").OrderByChild("scores").GetValueAsync().ContinueWithOnMainThread(task =>
         {
-            Destroy(child.gameObject);
-        }
+            if (task.IsFaulted)
+            {
+                Debug.Log(task.Exception);
+            }
+            else if (task.IsCompleted)
+            {
+                DataSnapshot snapshot = task.Result;
+                foreach (Transform child in scoreboardContent.transform)
+                {
+                    Destroy(child.gameObject);
+                }
+                foreach (DataSnapshot item in snapshot.Children)
+                {
+                    string username = item.Child("username").Value.ToString();
+                    float score = float.Parse(item.Child("score").Value.ToString());
 
-        foreach (DataSnapshot item in snapshot.Children.Reverse<DataSnapshot>())
-        {
-            string username = item.Child("username").Value.ToString();
-            float score = float.Parse(item.Child("score").Value.ToString());
-
-            GameObject scoreboardElement = Instantiate(scoreElement, scoreboardContent);
-            scoreboardElement.GetComponent<ScoreElement>().NewScoreElement(username , score);
-        }        
+                    Debug.Log(username + " " + score);
+                    GameObject scoreboardElement = Instantiate(scoreElement, scoreboardContent);
+                    scoreboardElement.GetComponent<ScoreElement>().NewScoreElement(username, score);
+                }
+            }
+        });
     }
-
 }
