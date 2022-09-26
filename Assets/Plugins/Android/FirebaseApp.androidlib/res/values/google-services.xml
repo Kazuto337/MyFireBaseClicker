@@ -1,0 +1,11 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources xmlns:tools="http://schemas.android.com/tools" tools:keep="@string/firebase_database_url,@string/gcm_defaultSenderId,@string/google_storage_bucket,@string/project_id,@string/google_api_key,@string/google_crash_reporting_api_key,@string/google_app_id,@string/default_web_client_id">
+  <string name="firebase_database_url" translatable="false">null</string>
+  <string name="gcm_defaultSenderId" translatable="false">306443637034</string>
+  <string name="google_storage_bucket" translatable="false">easyclicker-2022.appspot.com</string>
+  <string name="project_id" translatable="false">easyclicker-2022</string>
+  <string name="google_api_key" translatable="false">AIzaSyCX_zbE0jvE_n0T0obz4zqpU9JF5vuQfdU</string>
+  <string name="google_crash_reporting_api_key" translatable="false">AIzaSyCX_zbE0jvE_n0T0obz4zqpU9JF5vuQfdU</string>
+  <string name="google_app_id" translatable="false">1:306443637034:android:7fc181460d3b3873b5ce53</string>
+  <string name="default_web_client_id" translatable="false">306443637034-eu6q6nflq243oe26o62kn14e4us8k4r3.apps.googleusercontent.com</string>
+</resources>
