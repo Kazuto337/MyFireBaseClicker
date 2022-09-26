@@ -17,8 +17,7 @@ public class PointsBehavior : MonoBehaviour
     public DatabaseReference dbReference;
     string userId;
     [SerializeField] GameObject gameScreen, saveScreen, statsScreen;
-    public GameObject scoreElement;
-    public Transform scoreboardContent;
+    public List<GameObject> scoreboard;
 
 
 
@@ -56,27 +55,30 @@ public class PointsBehavior : MonoBehaviour
         statsScreen.SetActive(true);
         gameScreen.SetActive(false);
 
-        FirebaseDatabase.DefaultInstance.GetReference("users/").OrderByChild("scores").GetValueAsync().ContinueWithOnMainThread(task =>
+        FirebaseDatabase.DefaultInstance.GetReference("users/").OrderByChild("scores").GetValueAsync().ContinueWithOnMainThread(task =>//busca los objetos en el json de tipo user y los organiza por score
         {
             if (task.IsFaulted)
             {
                 Debug.Log(task.Exception);
             }
-            else if (task.IsCompleted)
+            else if (task.IsCompleted)//una vez se complete hace algo
             {
                 DataSnapshot snapshot = task.Result;
-                foreach (Transform child in scoreboardContent.transform)
-                {
-                    Destroy(child.gameObject);
-                }
+                int i = 0;
                 foreach (DataSnapshot item in snapshot.Children)
                 {
                     string username = item.Child("username").Value.ToString();
                     float score = float.Parse(item.Child("score").Value.ToString());
 
-                    Debug.Log(username + " " + score);
-                    GameObject scoreboardElement = Instantiate(scoreElement, scoreboardContent);
-                    scoreboardElement.GetComponent<ScoreElement>().NewScoreElement(username, score);
+                    print(username + " " + score);
+                    scoreboard[i].GetComponent<ScoreElement>().usernameText.text = username;
+                    scoreboard[i].GetComponent<ScoreElement>().scoreText.text = score.ToString();
+
+                    if (i >= scoreboard.Count)
+                    {
+                        break;
+                    }
+                    i++;
                 }
             }
         });
