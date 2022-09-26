@@ -163,7 +163,7 @@ public class FireBaseManager : MonoBehaviour
             else
             {
                 loginOutputText.text = "";
-                StartCoroutine(SendVerificationEmail());
+                GameManager.instance.ChangeScene(1);
             }
         }
     }
@@ -253,40 +253,6 @@ public class FireBaseManager : MonoBehaviour
                 }
 
             }
-        }
-    }
-
-    IEnumerator SendVerificationEmail()
-    {
-        if (user != null)
-        {
-            var emailtask = user.SendEmailVerificationAsync();
-            yield return new WaitUntil(predicate: () => emailtask.IsCompleted);
-
-            if (emailtask.Exception !=null)
-            {
-                FirebaseException firebaseException = (FirebaseException)emailtask.Exception.GetBaseException();
-                AuthError error = (AuthError)firebaseException.ErrorCode;
-
-                string output = "Unknown Error. Please Try Again";
-
-                switch (error)//In case of any error
-                {
-                    case AuthError.Cancelled:
-                        output = "Verification Task was cancellled";
-                        break;
-                    case AuthError.InvalidRecipientEmail:
-                        output = "Invalid Email";
-                        break;
-                    case AuthError.TooManyRequests:
-                        output = "To Many Requestes";
-                        break;
-                }
-
-                AuthManager.instance.AwaitVerification(false, user.Email, output);
-
-            }
-
         }
     }
 }
