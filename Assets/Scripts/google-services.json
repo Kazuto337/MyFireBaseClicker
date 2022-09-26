@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "firebase_url": "null",
+    "project_number": "306443637034",
+    "project_id": "easyclicker-2022",
+    "storage_bucket": "easyclicker-2022.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:306443637034:android:7fc181460d3b3873b5ce53",
+        "android_client_info": {
+          "package_name": "com.Kirito337Company.EasyClicker"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "306443637034-eu6q6nflq243oe26o62kn14e4us8k4r3.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCX_zbE0jvE_n0T0obz4zqpU9JF5vuQfdU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "306443637034-eu6q6nflq243oe26o62kn14e4us8k4r3.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

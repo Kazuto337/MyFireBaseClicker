@@ -1,1 +1,1 @@
-# MyFireBaseClicker
+# MyEasyClicker
