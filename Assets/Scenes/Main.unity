@@ -1687,6 +1687,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: ScoreElement
       objectReference: {fileID: 0}
+    - target: {fileID: 5580572804486496226, guid: 324439a1f4203a74d8abc8528fe2f1b0, type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 8004200393838739941, guid: 324439a1f4203a74d8abc8528fe2f1b0, type: 3}
       propertyPath: m_Pivot.x
       value: 0.5
@@ -1717,11 +1721,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8004200393838739941, guid: 324439a1f4203a74d8abc8528fe2f1b0, type: 3}
       propertyPath: m_SizeDelta.x
-      value: 100
+      value: 248.87
       objectReference: {fileID: 0}
     - target: {fileID: 8004200393838739941, guid: 324439a1f4203a74d8abc8528fe2f1b0, type: 3}
       propertyPath: m_SizeDelta.y
-      value: 100
+      value: 40.5238
       objectReference: {fileID: 0}
     - target: {fileID: 8004200393838739941, guid: 324439a1f4203a74d8abc8528fe2f1b0, type: 3}
       propertyPath: m_LocalPosition.x
@@ -1741,23 +1745,23 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8004200393838739941, guid: 324439a1f4203a74d8abc8528fe2f1b0, type: 3}
       propertyPath: m_LocalRotation.x
-      value: 0
+      value: -0
       objectReference: {fileID: 0}
     - target: {fileID: 8004200393838739941, guid: 324439a1f4203a74d8abc8528fe2f1b0, type: 3}
       propertyPath: m_LocalRotation.y
-      value: 0
+      value: -0
       objectReference: {fileID: 0}
     - target: {fileID: 8004200393838739941, guid: 324439a1f4203a74d8abc8528fe2f1b0, type: 3}
       propertyPath: m_LocalRotation.z
-      value: 0
+      value: -0
       objectReference: {fileID: 0}
     - target: {fileID: 8004200393838739941, guid: 324439a1f4203a74d8abc8528fe2f1b0, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 0
+      value: 3.4349976
       objectReference: {fileID: 0}
     - target: {fileID: 8004200393838739941, guid: 324439a1f4203a74d8abc8528fe2f1b0, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: 134.9
+      value: 151.2
       objectReference: {fileID: 0}
     - target: {fileID: 8004200393838739941, guid: 324439a1f4203a74d8abc8528fe2f1b0, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
@@ -4778,6 +4782,10 @@ PrefabInstance:
     - target: {fileID: 5580572804486496226, guid: 324439a1f4203a74d8abc8528fe2f1b0, type: 3}
       propertyPath: m_Name
       value: ScoreElement (1)
+      objectReference: {fileID: 0}
+    - target: {fileID: 5580572804486496226, guid: 324439a1f4203a74d8abc8528fe2f1b0, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 8004200393838739941, guid: 324439a1f4203a74d8abc8528fe2f1b0, type: 3}
       propertyPath: m_Pivot.x
