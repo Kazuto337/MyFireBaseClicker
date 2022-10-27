@@ -13,8 +13,9 @@ public class UsersOnlineController : MonoBehaviour
     DatabaseReference mDatabase;
     GameState _GameState;
     string UserId;
-    [SerializeField]
-    FireBaseManager _ButtonLogout;
+    [SerializeField] FireBaseManager _ButtonLogout;
+    [SerializeField] GameObject userLayout, userListPanel;
+    [SerializeField] List<GameObject> usersList;
 
     void Start()
     {
@@ -38,6 +39,7 @@ public class UsersOnlineController : MonoBehaviour
 
         SetUserOnline();
     }
+
     private void HandleChildAdded(object sender, ChildChangedEventArgs args)
     {
         if (args.DatabaseError != null)
@@ -46,8 +48,11 @@ public class UsersOnlineController : MonoBehaviour
             return;
         }
         Dictionary<string, object> userConnected = (Dictionary<string, object>)args.Snapshot.Value;
-        Debug.Log(userConnected["username"] + " is online");
+        userLayout.GetComponentInChildren<Text>().text = userConnected["username"].ToString();
+        GameObject friend = Instantiate(userLayout, userListPanel.transform);
+        usersList.Add(friend);
     }
+
     private void HandleChildRemoved(object sender, ChildChangedEventArgs args)
     {
         if (args.DatabaseError != null)
@@ -59,27 +64,6 @@ public class UsersOnlineController : MonoBehaviour
         Debug.Log(userDisconnected["username"] + " is offline");
     }
 
-
-    private void HandleValueChanged(object sender, ValueChangedEventArgs args)
-    {
-        if (args.DatabaseError != null)
-        {
-            Debug.Log(args.DatabaseError.Message);
-            return;
-        }
-        Dictionary<string, object> usersList = (Dictionary<string, object>)args.Snapshot.Value;
-
-        if (usersList != null)
-        {
-            foreach (var userDoc in usersList)
-            {
-                Dictionary<string, object> userOnline = (Dictionary<string, object>)userDoc.Value;
-                Debug.Log("ONLINE:" + userOnline["username"]);
-
-            }
-        }
-
-    }
     private void SetUserOnline()
     {
         mDatabase.Child("users-online").Child(UserId).Child("username").SetValueAsync(_GameState.username);

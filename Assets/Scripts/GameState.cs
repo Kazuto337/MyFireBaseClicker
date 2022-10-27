@@ -10,13 +10,10 @@ public class GameState : MonoBehaviour
     public string username;
     public string userId;
 
-    DatabaseReference mDatabase;
-
     public event Action OnDataReady;
 
     private void Start()
     {
-        mDatabase = FirebaseDatabase.DefaultInstance.RootReference;
         userId = FirebaseAuth.DefaultInstance.CurrentUser.UserId;
 
         GetUserData();
