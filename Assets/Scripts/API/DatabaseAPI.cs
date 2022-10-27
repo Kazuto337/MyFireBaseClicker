@@ -208,8 +208,13 @@ namespace APIs
         }
 
         public static void StopListeningForValueChanged(
-            KeyValuePair<DatabaseReference, EventHandler<ValueChangedEventArgs>> listener) =>
-            listener.Key.ValueChanged -= listener.Value;
+            KeyValuePair<DatabaseReference, EventHandler<ValueChangedEventArgs>> listener){
+            if (listener.Key != null)
+            {
+                listener.Key.ValueChanged -= listener.Value;
+            }
+            
+        }
 
         public static void
             CheckIfNodeExists(string path, Action<bool> callback, Action<AggregateException> fallback) =>
