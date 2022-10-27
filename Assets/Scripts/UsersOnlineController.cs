@@ -4,81 +4,78 @@ using UnityEngine;
 using Firebase.Auth;
 using UnityEngine.EventSystems;
 using Firebase.Database;
+using UnityEngine.UI;
 
 public class UsersOnlineController : MonoBehaviour
 {
-    // Start is called before the first frame update
-    DatabaseReference mDatabase;
-    GameState _GameState;
-    string UserId;
+    [Header("Current Status")]
+    [SerializeField] Text currentStatus;
+    [SerializeField] Dropdown statusDropdown;
+
+    [Header("Controller")]    
+    [SerializeField]GameState _GameState;
+    [SerializeField] string UserId;
+    DatabaseReference dbReference;
+
+    static UsersOnlineController _instance;
+    public static UsersOnlineController instance
+    {
+        get
+        {
+            return _instance;
+        }
+    }
+
+    void Awake()
+    {
+        if (_instance != null && _instance != this)
+        {
+            Destroy(instance.gameObject);
+        }
+        else _instance = this;
+    }
 
     void Start()
     {
-        mDatabase = FirebaseDatabase.DefaultInstance.RootReference;
-        _GameState = GameObject.Find("Controller").GetComponent<GameState>();
+        dbReference = FirebaseDatabase.DefaultInstance.RootReference;
         _GameState.OnDataReady += InitUsersOnlineController;
         UserId = FirebaseAuth.DefaultInstance.CurrentUser.UserId;
-
     }
 
     public void InitUsersOnlineController()
     {
         Debug.Log("Init users online controller");
-        var userOnlineRef = FirebaseDatabase.DefaultInstance
-        .GetReference("users-online");
-
-        mDatabase.Child("users-online").ChildAdded += HandleChildAdded;
-        mDatabase.Child("users-online").ChildRemoved += HandleChildRemoved;
+        dbReference.Child("users").Child(UserId).Child("status");
 
         SetUserOnline();
     }
-    private void HandleChildAdded(object sender, ChildChangedEventArgs args)
+    public void SetUserOnline()
     {
-        if (args.DatabaseError != null)
-        {
-            Debug.LogError(args.DatabaseError.Message);
-            return;
-        }
-        Dictionary<string, object> userConnected = (Dictionary<string, object>)args.Snapshot.Value;
-        Debug.Log(userConnected["username"] + " is online");
+        //dbReference.Child("users-online").Child(UserId).Child("username").SetValueAsync(_GameState.username);
+        print(_GameState.username + "Is Now ONLINE");
+        currentStatus.text = "ONLINE";
+        currentStatus.color = Color.green;
+        dbReference.Child("users").Child(UserId).Child("status").SetValueAsync(true);
     }
-    private void HandleChildRemoved(object sender, ChildChangedEventArgs args)
+    public void SetUserOffline()
     {
-        if (args.DatabaseError != null)
-        {
-            Debug.LogError(args.DatabaseError.Message);
-            return;
-        }
-        Dictionary<string, object> userDisconnected = (Dictionary<string, object>)args.Snapshot.Value;
-        Debug.Log(userDisconnected["username"] + " is offline");
+        //dbReference.Child("users-online").Child(UserId).SetValueAsync(null);
+        print(_GameState.username + "Is Now OFFLINE");
+        currentStatus.text = "OFFLINE";
+        currentStatus.color = Color.red;
+        dbReference.Child("users").Child(UserId).Child("status").SetValueAsync(false);
     }
-    private void HandleValueChanged(object sender, ValueChangedEventArgs args)
-    {
-        if (args.DatabaseError != null)
-        {
-            Debug.Log(args.DatabaseError.Message);
-            return;
-        }
-        Dictionary<string, object> usersList = (Dictionary<string, object>)args.Snapshot.Value;
 
-        if (usersList != null)
+    public void DropDownStatusChanged()
+    {
+        if (statusDropdown.value == 0)
         {
-            foreach (var userDoc in usersList)
-            {
-                Dictionary<string, object> userOnline = (Dictionary<string, object>)userDoc.Value;
-                Debug.Log("ONLINE:" + userOnline["username"]);
-
-            }
+            SetUserOnline();
         }
-
-    }
-    private void SetUserOnline()
-    {
-        mDatabase.Child("users-online").Child(UserId).Child("username").SetValueAsync(_GameState.username);
-    }
-    private void SetUserOffline()
-    {
-        mDatabase.Child("users-online").Child(UserId).SetValueAsync(null);
+        else if (statusDropdown.value == 1)
+        {
+            SetUserOffline();
+        }
     }
 
     void OnApplicationQuit()

@@ -63,12 +63,6 @@ public class FireBaseManager : MonoBehaviour
         });
         
     }
-
-    private void Start()
-    {
-        
-    }
-
     private void InitializeFirebase()
     {
         auth = FirebaseAuth.DefaultInstance;
@@ -117,6 +111,8 @@ public class FireBaseManager : MonoBehaviour
     public void LogOutButton()
     {
         auth.SignOut();
+        UsersOnlineController.instance.SetUserOffline();
+
         GameManager.instance.ChangeScene(0);
         ClearOutputs();
     }

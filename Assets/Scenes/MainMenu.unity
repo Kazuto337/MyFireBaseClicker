@@ -1602,8 +1602,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dd7176ef2017b364d90a9837689b4627, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  emailField: {fileID: 0}
-  output: {fileID: 0}
+  emailField: {fileID: 279095021}
+  output: {fileID: 800017385}
 --- !u!4 &506863435
 Transform:
   m_ObjectHideFlags: 0
