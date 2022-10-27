@@ -13,7 +13,7 @@ public class UsersOnlineController : MonoBehaviour
     [SerializeField] Dropdown statusDropdown;
 
     [Header("Controller")]    
-    [SerializeField]GameState _GameState;
+    [SerializeField] GameState _GameState;
     [SerializeField] string UserId;
     DatabaseReference dbReference;
 
@@ -40,6 +40,7 @@ public class UsersOnlineController : MonoBehaviour
         dbReference = FirebaseDatabase.DefaultInstance.RootReference;
         _GameState.OnDataReady += InitUsersOnlineController;
         UserId = FirebaseAuth.DefaultInstance.CurrentUser.UserId;
+        SetUserOnline();
     }
 
     public void InitUsersOnlineController()
