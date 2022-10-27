@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using APIs;
 using Firebase.Database;
+using Serializables;
 using UnityEngine;
 
 namespace Managers
@@ -45,6 +46,7 @@ namespace Managers
                                 Debug.Log(GameId);
                                 DatabaseAPI.PostJSON($"matchmaking/{GameId}/placeholder", "False", () => onGameFound(
                                     GameId), fallback);
+                                CreateGame(GameId, GameId, MainManager.Instance.currentLocalPlayerId);
                             }
                         }
                     }
@@ -71,6 +73,16 @@ namespace Managers
         {
             DatabaseAPI.StopListeningForValueChanged(queueListener);
             DatabaseAPI.PostJSON($"matchmaking/{playerId}/placeholder", "False", callback, fallback);
+        }
+
+        public void CreateGame(string gameId, string ID1, string ID2)
+        {
+            GameInfo GF = new GameInfo();
+            GF.gameId = gameId;
+            GF.playersIds = new string[2];
+            GF.playersIds[0] = ID1;
+            GF.playersIds[1] = ID2;
+            DatabaseAPI.PostObject($"games/", StringSerializationAPI.Serialize(typeof(GameInfo), GF),null, null);
         }
     }
 }
