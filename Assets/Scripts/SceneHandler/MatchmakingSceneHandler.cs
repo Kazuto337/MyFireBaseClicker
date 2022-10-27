@@ -34,15 +34,16 @@ public class MatchmakingSceneHandler : MonoBehaviour
 
     private void GameFound()
     {
+        Debug.Log("GameFound");
         MainManager.Instance.gameManager.GetCurrentGameInfo(gameId, MainManager.Instance.currentLocalPlayerId,
             gameInfo =>
             {
-                MainManager.Instance.matchmakingManager.GameOn = true;
-                SceneManager.LoadScene("MatchedGame");
             }, Debug.Log);
 
+        MainManager.Instance.matchmakingManager.GameOn = true;
         searchingPanel.SetActive(false);
         foundPanel.SetActive(true);
+        SceneManager.LoadScene("MatchedGame");
     }
 
     public void LeaveQueue()
