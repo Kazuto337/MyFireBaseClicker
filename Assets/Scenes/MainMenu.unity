@@ -582,9 +582,13 @@ MonoBehaviour:
   m_GameObject: {fileID: 112067708}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 43582f0001d02854ea793d06f34cdd5c, type: 3}
+  m_Script: {fileID: 11500000, guid: df75e85b2cc53ca40a6b63c4eecc2ab3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  currentGameInfo:
+    gameId: 
+    playersIds: []
+    localPlayerId: 
 --- !u!4 &112067710
 Transform:
   m_ObjectHideFlags: 0
@@ -1595,11 +1599,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 506863433}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: cf0a65db83df85c4aa719ffa7897e524, type: 3}
+  m_Script: {fileID: 11500000, guid: dd7176ef2017b364d90a9837689b4627, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  emailField: {fileID: 279095021}
-  output: {fileID: 1599239423}
+  emailField: {fileID: 0}
+  output: {fileID: 0}
 --- !u!4 &506863435
 Transform:
   m_ObjectHideFlags: 0
@@ -1677,7 +1681,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 533410012}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: aca6374cecd5a8b46b617e3dd09858ba, type: 3}
+  m_Script: {fileID: 11500000, guid: 547bb0aa204a0f34fbc9dd1171802217, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   checking4AccountUI: {fileID: 0}
@@ -5948,7 +5952,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 2094266802}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 95681c0c954df654088321396b1f8c93, type: 3}
+  m_Script: {fileID: 11500000, guid: 3413f802acaca6d46a8c7ffb31b39bf1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   dependencyStatus: 0
