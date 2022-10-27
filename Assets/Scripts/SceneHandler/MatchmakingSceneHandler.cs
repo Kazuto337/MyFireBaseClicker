@@ -37,14 +37,8 @@ public class MatchmakingSceneHandler : MonoBehaviour
         MainManager.Instance.gameManager.GetCurrentGameInfo(gameId, MainManager.Instance.currentLocalPlayerId,
             gameInfo =>
             {
-                Debug.Log("Game found. Ready-up!");
                 MainManager.Instance.matchmakingManager.GameOn = true;
-                MainManager.Instance.gameManager.ListenForAllPlayersReady(gameInfo.playersIds,
-                    playerId => Debug.Log(playerId + " is ready!"), () =>
-                    {
-                        Debug.Log("All players are ready!");
-                        SceneManager.LoadScene("MatchedGame");
-                    }, Debug.Log);
+                SceneManager.LoadScene("MatchedGame");
             }, Debug.Log);
 
         searchingPanel.SetActive(false);
