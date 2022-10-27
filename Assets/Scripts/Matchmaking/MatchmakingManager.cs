@@ -43,10 +43,9 @@ namespace Managers
                             if (child.Value.ToString() != MainManager.Instance.currentLocalPlayerId)
                             {
                                 var GameId = child.Key;
-                                Debug.Log(GameId);
+                                CreateGame(GameId, GameId, MainManager.Instance.currentLocalPlayerId);
                                 DatabaseAPI.PostJSON($"matchmaking/{GameId}/placeholder", "False", () => onGameFound(
                                     GameId), fallback);
-                                CreateGame(GameId, GameId, MainManager.Instance.currentLocalPlayerId);
                             }
                         }
                     }

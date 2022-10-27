@@ -19,6 +19,7 @@ public class MatchmakingSceneHandler : MonoBehaviour
         MainManager.Instance.matchmakingManager.GameOn = false;
         MainManager.Instance.matchmakingManager.JoinQueue(MainManager.Instance.currentLocalPlayerId, gameId =>
             {
+                MainManager.Instance.matchmakingManager.GameOn = true;
                 this.gameId = gameId;
             },
             Debug.Log);
