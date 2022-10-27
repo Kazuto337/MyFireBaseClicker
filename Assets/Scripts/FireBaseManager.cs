@@ -115,9 +115,9 @@ public class FireBaseManager : MonoBehaviour
 
     public void LogOutButton()
     {
+        //ClearOutputs();
         auth.SignOut();
         OnLogOut?.Invoke();
-        ClearOutputs();
 
         GameManager.instance.ChangeScene(0);
     }

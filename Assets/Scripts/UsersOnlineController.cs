@@ -84,6 +84,7 @@ public class UsersOnlineController : MonoBehaviour
     {
         mDatabase.Child("users-online").Child(UserId).Child("username").SetValueAsync(_GameState.username);
     }
+
     private void SetUserOffline()
     {
         mDatabase.Child("users-online").Child(UserId).SetValueAsync(null);
