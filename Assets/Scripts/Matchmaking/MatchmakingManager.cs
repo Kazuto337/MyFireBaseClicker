@@ -82,7 +82,12 @@ namespace Managers
             GF.playersIds = new string[2];
             GF.playersIds[0] = ID1;
             GF.playersIds[1] = ID2;
-            DatabaseAPI.PostObject($"games/", StringSerializationAPI.Serialize(typeof(GameInfo), GF),null, null);
+            GameManager.instance.currentGameInfo = GF;
+            DatabaseAPI.PushObject($"games/{gameId}/gameInfo/", GF,
+                () =>
+                {
+                    Debug.Log("Game sent successfully!");
+                }, Debug.Log);
         }
     }
 }
