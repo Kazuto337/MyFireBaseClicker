@@ -52,7 +52,8 @@ public class GameManager : MonoBehaviour
                 if (!args.Snapshot.Exists) return;
 
                 var gameInfo =
-                    JsonUtility.FromJson<GameInfo>(args.Snapshot.GetRawJsonValue());
+                    StringSerializationAPI.Deserialize(typeof(GameInfo), args.Snapshot.GetRawJsonValue()) as
+                        GameInfo;
                 currentGameInfo = gameInfo;
                 currentGameInfo.localPlayerId = localPlayerId;
                 DatabaseAPI.StopListeningForValueChanged(currentGameInfoListener);
@@ -99,7 +100,7 @@ public class GameManager : MonoBehaviour
         pointsListeners.Add(playerId, DatabaseAPI.ListenForChildAdded(
             $"games/{currentGameInfo.gameId}/{playerId}/points/",
             args => onNewPoints(
-                JsonUtility.FromJson<Points>(args.Snapshot.GetRawJsonValue())),
+                StringSerializationAPI.Deserialize(typeof(Points), args.Snapshot.GetRawJsonValue()) as Points),
             fallback));
     }
 

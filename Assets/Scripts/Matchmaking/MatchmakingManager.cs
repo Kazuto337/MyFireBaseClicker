@@ -16,7 +16,8 @@ namespace Managers
                     args =>
                     {
                         var gameId =
-                            JsonUtility.FromJson<string>(args.Snapshot.GetRawJsonValue());
+                            StringSerializationAPI.Deserialize(typeof(string), args.Snapshot.GetRawJsonValue()) as
+                                string;
                         if (gameId == "placeholder") return;
                         LeaveQueue(playerId, () => onGameFound(
                             gameId), fallback);

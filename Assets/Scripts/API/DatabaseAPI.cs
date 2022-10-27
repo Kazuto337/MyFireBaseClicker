@@ -35,10 +35,10 @@ namespace APIs
                 callback();
             });
         }
-        //
+
         public static void PostObject<T>(string path, T obj, Action callback,
             Action<AggregateException> fallback) =>
-            PostJSON(path, JsonUtility.ToJson(obj), callback, fallback);
+            PostJSON(path, StringSerializationAPI.Serialize(typeof(T), obj), callback, fallback);
 
         public static void PushJSON(string path, string json, Action callback, Action<AggregateException> fallback)
         {
@@ -67,12 +67,12 @@ namespace APIs
         
         public static void PushObject<T>(string path, T obj, Action callback,
             Action<AggregateException> fallback) =>
-            PushJSON(path, JsonUtility.ToJson(obj), callback, fallback);
-        
+            PushJSON(path, StringSerializationAPI.Serialize(typeof(T), obj), callback, fallback);
+
         public static void GetObject<T>(string path, Action<T> callback,
             Action<AggregateException> fallback) =>
             GetJSON(path,
-                json => { callback(JsonUtility.FromJson<T>(json.GetRawJsonValue())); },
+                json => { callback((T) StringSerializationAPI.Deserialize(typeof(T), json.GetRawJsonValue())); },
                 fallback);
 
         public static void GetJSON(string path, Action<DataSnapshot> callback, Action<AggregateException> fallback)
