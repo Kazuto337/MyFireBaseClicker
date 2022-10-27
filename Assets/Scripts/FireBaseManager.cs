@@ -6,6 +6,7 @@ using UnityEngine.Networking;
 using Firebase;
 using Firebase.Auth;
 using Firebase.Database;
+using Managers;
 
 public class FireBaseManager : MonoBehaviour
 {
@@ -90,6 +91,7 @@ public class FireBaseManager : MonoBehaviour
 
             if (signedIn)
             {
+                MainManager.Instance.currentLocalPlayerId = user.UserId;
                 Debug.Log($"Signed In: {user.DisplayName}");
             }
         }

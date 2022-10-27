@@ -40,7 +40,7 @@ public class GameManager : MonoBehaviour
     private KeyValuePair<DatabaseReference, EventHandler<ValueChangedEventArgs>> currentGameInfoListener;
 
     private readonly Dictionary<string, KeyValuePair<DatabaseReference, EventHandler<ChildChangedEventArgs>>>
-        moveListeners =
+        pointsListeners =
             new Dictionary<string, KeyValuePair<DatabaseReference, EventHandler<ChildChangedEventArgs>>>();
 
     public void GetCurrentGameInfo(string gameId, string localPlayerId, Action<GameInfo> callback,
@@ -84,49 +84,28 @@ public class GameManager : MonoBehaviour
 
     public void StopListeningForAllPlayersReady() => DatabaseAPI.StopListeningForChildAdded(readyListener);
 
-    public void SendMove(Move move, Action callback, Action<AggregateException> fallback)
+    public void SendPoints(Points points, Action callback, Action<AggregateException> fallback)
     {
-        DatabaseAPI.PushObject($"games/{currentGameInfo.gameId}/{currentGameInfo.localPlayerId}/moves/", move,
+        DatabaseAPI.PushObject($"games/{currentGameInfo.gameId}/{currentGameInfo.localPlayerId}/points/", points,
             () =>
             {
-                Debug.Log("Moved sent successfully!");
+                Debug.Log("Points sent successfully!");
                 callback();
             }, fallback);
     }
 
-    public void ListenForLocalPlayerTurn(Action onLocalPlayerTurn, Action<AggregateException> fallback)
+    public void ListenForPoints(string playerId, Action<Points> onNewPoints, Action<AggregateException> fallback)
     {
-        localPlayerTurnListener =
-            DatabaseAPI.ListenForValueChanged($"games/{currentGameInfo.gameId}/turn", args =>
-            {
-                var turn =
-                    JsonUtility.FromJson<string>(args.Snapshot.GetRawJsonValue());
-                if (turn == currentGameInfo.localPlayerId) onLocalPlayerTurn();
-            }, fallback);
-    }
-
-    public void StopListeningForLocalPlayerTurn() =>
-        DatabaseAPI.StopListeningForValueChanged(localPlayerTurnListener);
-
-    public void ListenForMoves(string playerId, Action<Move> onNewMove, Action<AggregateException> fallback)
-    {
-        moveListeners.Add(playerId, DatabaseAPI.ListenForChildAdded(
-            $"games/{currentGameInfo.gameId}/{playerId}/moves/",
-            args => onNewMove(
-                JsonUtility.FromJson<Move>(args.Snapshot.GetRawJsonValue())),
+        pointsListeners.Add(playerId, DatabaseAPI.ListenForChildAdded(
+            $"games/{currentGameInfo.gameId}/{playerId}/points/",
+            args => onNewPoints(
+                JsonUtility.FromJson<Points>(args.Snapshot.GetRawJsonValue())),
             fallback));
     }
 
-    public void StopListeningForMoves(string playerId)
+    public void StopListeningForPoints(string playerId)
     {
-        DatabaseAPI.StopListeningForChildAdded(moveListeners[playerId]);
-        moveListeners.Remove(playerId);
-    }
-
-    public void SetTurnToOtherPlayer(string currentPlayerId, Action callback, Action<AggregateException> fallback)
-    {
-        var otherPlayerId = currentGameInfo.playersIds.First(p => p != currentPlayerId);
-        DatabaseAPI.PostObject(
-            $"games/{currentGameInfo.gameId}/turn", otherPlayerId, callback, fallback);
+        DatabaseAPI.StopListeningForChildAdded(pointsListeners[playerId]);
+        pointsListeners.Remove(playerId);
     }
 }
