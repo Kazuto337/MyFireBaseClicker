@@ -15,6 +15,7 @@ public class PlayerScoreHandler : MonoBehaviour
 
     public void Init()
     {
+        points = new Points(0);
         _text = GetComponent<Text>();
         MainManager.Instance.gameManager.ListenForPoints(playerId, ExecuteMove, Debug.Log);
         avaiable = true;

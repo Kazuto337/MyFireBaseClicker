@@ -78,17 +78,15 @@ namespace Managers
 
         public void CreateGame(string gameId, string ID1, string ID2)
         {
+            Games G = new Games();
+            G.gameId = gameId;
             gameInfo GF = new gameInfo();
             GF.gameId = gameId;
             GF.playerIds = new PlayerIds();
             GF.playerIds._0 = ID1;
             GF.playerIds._1 = ID2;
-            DatabaseAPI.PushObject($"games/{gameId}/", GF,
-                () =>
-                {
-                    MainManager.Instance.matchmakingManager.GameOn = true;
-                    Debug.Log("Game sent successfully!");
-                }, Debug.Log);
+            G.gameInfo = GF;
+            FirebaseDatabase.DefaultInstance.GetReference($"games/{gameId}").SetRawJsonValueAsync(JsonUtility.ToJson(G));
         }
     }
 }
@@ -104,4 +102,10 @@ public class PlayerIds
 {
     public string _0;
     public string _1;
+}
+
+public class Games
+{
+    public string gameId;
+    public gameInfo gameInfo;
 }
