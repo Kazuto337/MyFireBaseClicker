@@ -63,7 +63,7 @@ public class GameManager : MonoBehaviour
 
     public void SetLocalPlayerReady(Action callback, Action<AggregateException> fallback)
     {
-        DatabaseAPI.PostObject($"games/{currentGameInfo.gameId}/ready/{currentGameInfo.localPlayerId}", true,
+        DatabaseAPI.PushObject($"games/{currentGameInfo.gameId}/ready/{currentGameInfo.localPlayerId}", true,
             callback,
             fallback);
     }
@@ -75,8 +75,8 @@ public class GameManager : MonoBehaviour
         readyPlayers = playersId.ToDictionary(playerId => playerId, playerId => false);
         readyListener = DatabaseAPI.ListenForChildAdded($"games/{currentGameInfo.gameId}/ready/", args =>
         {
-            readyPlayers[args.Snapshot.Key] = true;
-            onNewPlayerReady(args.Snapshot.Key);
+            readyPlayers[args.Snapshot.Key.Substring(0,1)] = true;
+            onNewPlayerReady(args.Snapshot.Key.Substring(0,1));
             if (!readyPlayers.All(readyPlayer => readyPlayer.Value)) return;
             StopListeningForAllPlayersReady();
             onAllPlayersReady();

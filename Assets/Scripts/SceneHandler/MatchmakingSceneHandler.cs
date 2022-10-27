@@ -9,7 +9,6 @@ public class MatchmakingSceneHandler : MonoBehaviour
     public GameObject searchingPanel;
     public GameObject foundPanel;
 
-    private bool gameFound;
     private bool readyingUp;
     private string gameId;
 
@@ -17,17 +16,17 @@ public class MatchmakingSceneHandler : MonoBehaviour
 
     private void JoinQueue()
     {
+        MainManager.Instance.matchmakingManager.GameOn = false;
         MainManager.Instance.matchmakingManager.JoinQueue(MainManager.Instance.currentLocalPlayerId, gameId =>
             {
                 this.gameId = gameId;
-                gameFound = true;
             },
             Debug.Log);
     }
 
     private void Update()
     {
-        if (!gameFound || readyingUp) return;
+        if (!MainManager.Instance.matchmakingManager.GameOn || readyingUp) return;
         readyingUp = true;
         GameFound();
     }
@@ -38,7 +37,7 @@ public class MatchmakingSceneHandler : MonoBehaviour
             gameInfo =>
             {
                 Debug.Log("Game found. Ready-up!");
-                gameFound = true;
+                MainManager.Instance.matchmakingManager.GameOn = true;
                 MainManager.Instance.gameManager.ListenForAllPlayersReady(gameInfo.playersIds,
                     playerId => Debug.Log(playerId + " is ready!"), () =>
                     {
@@ -53,7 +52,7 @@ public class MatchmakingSceneHandler : MonoBehaviour
 
     public void LeaveQueue()
     {
-        if (gameFound) MainManager.Instance.gameManager.StopListeningForAllPlayersReady();
+        if (MainManager.Instance.matchmakingManager.GameOn) MainManager.Instance.gameManager.StopListeningForAllPlayersReady();
         else
             MainManager.Instance.matchmakingManager.LeaveQueue(MainManager.Instance.currentLocalPlayerId,
                 () => Debug.Log("Left queue successfully"), Debug.Log);

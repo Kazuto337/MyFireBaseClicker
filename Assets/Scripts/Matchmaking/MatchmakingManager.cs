@@ -75,19 +75,34 @@ namespace Managers
             DatabaseAPI.PostJSON($"matchmaking/{playerId}/placeholder", "False", callback, fallback);
         }
 
+        public bool GameOn = false;
+
         public void CreateGame(string gameId, string ID1, string ID2)
         {
-            GameInfo GF = new GameInfo();
+            gameInfo GF = new gameInfo();
             GF.gameId = gameId;
-            GF.playersIds = new string[2];
-            GF.playersIds[0] = ID1;
-            GF.playersIds[1] = ID2;
-            GameManager.instance.currentGameInfo = GF;
-            DatabaseAPI.PushObject($"games/{gameId}/gameInfo/", GF,
+            GF.playerIds = new PlayerIds();
+            GF.playerIds._0 = ID1;
+            GF.playerIds._1 = ID2;
+            DatabaseAPI.PushObject($"games/{gameId}/", GF,
                 () =>
                 {
+                    MainManager.Instance.matchmakingManager.GameOn = true;
                     Debug.Log("Game sent successfully!");
                 }, Debug.Log);
         }
     }
+}
+[Serializable]
+public class gameInfo
+{
+    public string gameId;
+    public PlayerIds playerIds;
+}
+
+[Serializable]
+public class PlayerIds
+{
+    public string _0;
+    public string _1;
 }
