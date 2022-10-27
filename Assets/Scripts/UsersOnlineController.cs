@@ -60,6 +60,12 @@ public class UsersOnlineController : MonoBehaviour
             Debug.LogError(args.DatabaseError.Message);
             return;
         }
+
+        foreach (GameObject item in usersList)
+        {
+            Destroy(item);
+        }
+
         Dictionary<string, object> userDisconnected = (Dictionary<string, object>)args.Snapshot.Value;
         Debug.Log(userDisconnected["username"] + " is offline");
     }
