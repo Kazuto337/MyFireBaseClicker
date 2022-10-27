@@ -15,13 +15,15 @@ public class MatchmakingSceneHandler : MonoBehaviour
 
     private void Start() => JoinQueue();
 
-    private void JoinQueue() =>
+    private void JoinQueue()
+    {
         MainManager.Instance.matchmakingManager.JoinQueue(MainManager.Instance.currentLocalPlayerId, gameId =>
             {
                 this.gameId = gameId;
                 gameFound = true;
             },
             Debug.Log);
+    }
 
     private void Update()
     {

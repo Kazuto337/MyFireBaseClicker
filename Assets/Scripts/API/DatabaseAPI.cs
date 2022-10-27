@@ -124,8 +124,12 @@ namespace APIs
         }
 
         public static void StopListeningForChildAdded(
-            KeyValuePair<DatabaseReference, EventHandler<ChildChangedEventArgs>> listener) =>
-            listener.Key.ChildAdded -= listener.Value;
+            KeyValuePair<DatabaseReference, EventHandler<ChildChangedEventArgs>> listener){
+            if (listener.Key != null)
+            {
+                listener.Key.ChildAdded -= listener.Value;
+            }
+        }
 
         public static KeyValuePair<DatabaseReference, EventHandler<ChildChangedEventArgs>> ListenForChildRemoved(string path, Action<ChildChangedEventArgs> onChildRemoved,
             Action<AggregateException> fallback)
@@ -152,8 +156,12 @@ namespace APIs
         }
 
         public static void StopListeningForChildRemoved(
-            KeyValuePair<DatabaseReference, EventHandler<ChildChangedEventArgs>> listener) =>
-            listener.Key.ChildRemoved -= listener.Value;
+            KeyValuePair<DatabaseReference, EventHandler<ChildChangedEventArgs>> listener) {
+            if (listener.Key != null)
+            {
+                listener.Key.ChildRemoved -= listener.Value;
+            }
+        }
 
         public static KeyValuePair<DatabaseReference, EventHandler<ChildChangedEventArgs>> ListenForChildChanged(string path, Action<ChildChangedEventArgs> onChildChanged,
             Action<AggregateException> fallback)
@@ -180,8 +188,12 @@ namespace APIs
         }
 
         public static void StopListeningForChildChanged(
-            KeyValuePair<DatabaseReference, EventHandler<ChildChangedEventArgs>> listener) =>
-            listener.Key.ChildChanged -= listener.Value;
+            KeyValuePair<DatabaseReference, EventHandler<ChildChangedEventArgs>> listener) {
+            if (listener.Key != null)
+            {
+                listener.Key.ChildChanged -= listener.Value;
+            }
+        }
 
         public static KeyValuePair<DatabaseReference, EventHandler<ValueChangedEventArgs>> ListenForValueChanged(string path, Action<ValueChangedEventArgs> onValueChanged,
             Action<AggregateException> fallback)
@@ -213,7 +225,6 @@ namespace APIs
             {
                 listener.Key.ValueChanged -= listener.Value;
             }
-            
         }
 
         public static void
