@@ -1,6 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
+using APIs;
+using Firebase.Database;
 using Managers;
+using Serializables;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -34,18 +37,33 @@ public class MatchmakingSceneHandler : MonoBehaviour
 
     private void GameFound()
     {
-        Debug.Log("GameFound");
-        MainManager.Instance.gameManager.GetCurrentGameInfo(gameId, MainManager.Instance.currentLocalPlayerId,
-            gameInfo =>
-            {
-            }, Debug.Log);
+        StartCoroutine(ProccessQueue(gameId, MainManager.Instance.currentLocalPlayerId));
 
-        MainManager.Instance.matchmakingManager.GameOn = true;
         searchingPanel.SetActive(false);
         foundPanel.SetActive(true);
-        SceneManager.LoadScene("MatchedGame");
     }
 
+    
+    public IEnumerator ProccessQueue(string playerId, string localPlayerID)
+    {
+        var DBTask = FirebaseDatabase.DefaultInstance.RootReference.Child("games").Child(playerId).Child("gameInfo").GetValueAsync();
+        yield return new WaitUntil(() => DBTask.IsCompleted);
+        if (DBTask.Exception != null)
+        {
+            Debug.LogError(message:$"Failed to register task with: {DBTask.Exception}");
+        }
+        else
+        {
+            GameManager.instance.currentGameInfo = new GameInfo();
+            GameManager.instance.currentGameInfo.gameId = DBTask.Result.Child("gameId").ToString();
+            GameManager.instance.currentGameInfo.playersIds = new string[2];
+            GameManager.instance.currentGameInfo.playersIds[0] =  DBTask.Result.Child("_0").ToString();
+            GameManager.instance.currentGameInfo.playersIds[1] =  DBTask.Result.Child("_1").ToString();
+            GameManager.instance.currentGameInfo.localPlayerId = localPlayerID;
+            MainManager.Instance.matchmakingManager.GameOn = true;
+            SceneManager.LoadScene("MatchedGame");
+        }
+    }
     public void LeaveQueue()
     {
         if (MainManager.Instance.matchmakingManager.GameOn) MainManager.Instance.gameManager.StopListeningForAllPlayersReady();
