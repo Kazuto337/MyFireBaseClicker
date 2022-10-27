@@ -22,6 +22,7 @@ public class UsersBehav : MonoBehaviour
     {
         StartCoroutine(SetOnlineUserList());
     }
+
     public void RefreshList()
     {
         foreach (GameObject item in usersList)
@@ -31,6 +32,7 @@ public class UsersBehav : MonoBehaviour
         usersList.Clear();
         StartCoroutine(SetOnlineUserList());
     }
+
     public IEnumerator SetOnlineUserList()
     {
         var usersInDB = dbReference.Child("users").GetValueAsync();
@@ -44,6 +46,7 @@ public class UsersBehav : MonoBehaviour
                 print(item.Child("username").Value.ToString());
                 userLayout.GetComponentInChildren<Text>().text = item.Child("username").Value.ToString();
                 GameObject j = Instantiate(userLayout, userListPanel.transform);
+                j.GetComponent<FriendsController>().friendId = item.Key;
                 usersList.Add(j);
             }            
         }
