@@ -20,7 +20,7 @@ public class UsersBehav : MonoBehaviour
     }
     private void OnEnable()
     {
-        StartCoroutine(SetOnlineUserList());
+        //StartCoroutine(SetOnlineUserList());
     }
 
     public void RefreshList()
@@ -30,25 +30,25 @@ public class UsersBehav : MonoBehaviour
             Destroy(item);
         }
         usersList.Clear();
-        StartCoroutine(SetOnlineUserList());
+        //StartCoroutine(SetOnlineUserList());
     }
 
-    public IEnumerator SetOnlineUserList()
-    {
-        var usersInDB = dbReference.Child("users").GetValueAsync();
+    //public IEnumerator SetOnlineUserList()
+    //{
+    //    var usersInDB = dbReference.Child("users").GetValueAsync();
         
-        yield return new WaitUntil(() => usersInDB.IsCompleted);
+    //    yield return new WaitUntil(() => usersInDB.IsCompleted);
 
-        foreach (DataSnapshot item in usersInDB.Result.Children)
-        {
-            if (bool.Parse(item.Child("status").Value.ToString()) != false && item.Key != user.UserId && item.Child("username").Value != null)
-            {
-                print(item.Child("username").Value.ToString());
-                userLayout.GetComponentInChildren<Text>().text = item.Child("username").Value.ToString();
-                GameObject j = Instantiate(userLayout, userListPanel.transform);
-                j.GetComponent<FriendsController>().friendId = item.Key;
-                usersList.Add(j);
-            }            
-        }
-    }
+    //    foreach (DataSnapshot item in usersInDB.Result.Children)
+    //    {
+    //        if (bool.Parse(item.Child("status").Value.ToString()) != false && item.Key != user.UserId && item.Child("username").Value != null)
+    //        {
+    //            print(item.Child("username").Value.ToString());
+    //            userLayout.GetComponentInChildren<Text>().text = item.Child("username").Value.ToString();
+    //            GameObject j = Instantiate(userLayout, userListPanel.transform);
+    //            j.GetComponent<FriendsController>().friendId = item.Key;
+    //            usersList.Add(j);
+    //        }            
+    //    }
+    //}
 }

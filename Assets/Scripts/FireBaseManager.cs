@@ -7,6 +7,7 @@ using Firebase;
 using Firebase.Auth;
 using Firebase.Database;
 using Managers;
+using System;
 
 public class FireBaseManager : MonoBehaviour
 {
@@ -31,6 +32,9 @@ public class FireBaseManager : MonoBehaviour
     [SerializeField] Text registerOutputText;
     [Space(5f)]
     static FireBaseManager _instance;
+
+    public event Action OnLogOut;
+
     public static FireBaseManager instance
     {
         get
@@ -66,6 +70,7 @@ public class FireBaseManager : MonoBehaviour
     private void InitializeFirebase()
     {
         auth = FirebaseAuth.DefaultInstance;
+        dbReference = FirebaseDatabase.DefaultInstance.RootReference;
 
         auth.StateChanged += AuthStateChanged;
         AuthStateChanged(this, null);
@@ -111,10 +116,10 @@ public class FireBaseManager : MonoBehaviour
     public void LogOutButton()
     {
         auth.SignOut();
-        UsersOnlineController.instance.SetUserOffline();
+        OnLogOut?.Invoke();
+        ClearOutputs();
 
         GameManager.instance.ChangeScene(0);
-        ClearOutputs();
     }
 
     IEnumerator Login(string _email, string _password)

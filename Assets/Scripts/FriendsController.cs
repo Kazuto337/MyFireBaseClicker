@@ -7,6 +7,9 @@ using UnityEngine.UI;
 
 public class FriendsController : MonoBehaviour
 {
+    [SerializeField] Button addButton;
+    [SerializeField] Text friendText;
+
     private DatabaseReference friendDatabase;
     private FirebaseUser user;
     public string friendId;
@@ -20,5 +23,7 @@ public class FriendsController : MonoBehaviour
     public void AddFriend()
     {
         friendDatabase.Child("users").Child(user.UserId).Child("friends").Push().SetValueAsync(friendId);
+        addButton.gameObject.SetActive(false);
+        friendText.gameObject.SetActive(true);
     }
 }
