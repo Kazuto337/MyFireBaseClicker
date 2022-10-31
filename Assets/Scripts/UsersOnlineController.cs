@@ -47,10 +47,18 @@ public class UsersOnlineController : MonoBehaviour
             Debug.LogError(args.DatabaseError.Message);
             return;
         }
+        string a = FirebaseAuth.DefaultInstance.CurrentUser.DisplayName;
+        print("el usuario actual es" + a);
         Dictionary<string, object> userConnected = (Dictionary<string, object>)args.Snapshot.Value;
-        userLayout.GetComponentInChildren<Text>().text = userConnected["username"].ToString();
-        GameObject friend = Instantiate(userLayout, userListPanel.transform);
-        usersList.Add(friend);
+        foreach (var item in userConnected)
+        {
+            if (item.Value.ToString() != a)
+            {
+                userLayout.GetComponentInChildren<Text>().text = userConnected["username"].ToString();
+                GameObject friend = Instantiate(userLayout, userListPanel.transform);
+                usersList.Add(friend);
+            }
+        }
     }
 
     private void HandleChildRemoved(object sender, ChildChangedEventArgs args)
