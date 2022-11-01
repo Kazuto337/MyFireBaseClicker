@@ -9,7 +9,7 @@ public class NotificationController : MonoBehaviour
     public static NotificationController instance;
 
     public GameObject notification;
-    public GameObject newFriendRequest;
+    public GameObject newFriend;
     public GameObject popUp;
     public GameObject panel;
 
@@ -36,7 +36,7 @@ public class NotificationController : MonoBehaviour
 
         Debug.Log(friend.username);
         string text = friend.username + " and you are friend now.";
-        GameObject newNotification = Instantiate(newFriendRequest, notification.transform.parent);
+        GameObject newNotification = Instantiate(newFriend, notification.transform.parent);
         newNotification.SetActive(true);
         newNotification.GetComponent<Notification>().text.text = text;
     }

@@ -135,24 +135,24 @@ public class FriendsController : MonoBehaviour
         message.gameObject.SetActive(true);
     }
 
-    //public void AcceptFriendRequest(Notification notificacion)
-    //{
-    //    string myId = PlayerPrefs.GetString("userID");
-    //    string myUsername = PlayerPrefs.GetString("username");
+    public void AcceptFriendRequest(Notification notificacion)
+    {
+        string myId = FirebaseAuth.DefaultInstance.CurrentUser.UserId;
+        string myUsername = mDatabase.Child("users/" + myId).Child("username").GetValueAsync().ToString();
 
-    //    mDatabase = FirebaseDatabase.DefaultInstance.RootReference;
-    //    mDatabase.Child("users").Child(myId).Child("friendRequests").Child(notificacion.fR.requestId).Child("accepted").SetValueAsync(true);
-    //    User user = new User(notificacion.fR.username, notificacion.fR.sender);
-    //    User ownUsert = new User(myUsername, myId);
+        mDatabase = FirebaseDatabase.DefaultInstance.RootReference;
+        mDatabase.Child("users").Child(myId).Child("friendRequests").Child(notificacion.fR.requestId).Child("accepted").SetValueAsync(true);
+        OwnFriend user = new OwnFriend(notificacion.fR.sender, notificacion.fR.username);
+        OwnFriend ownUsert = new OwnFriend(myId, myUsername);
 
-    //    string json1 = JsonUtility.ToJson(user);
-    //    string json2 = JsonUtility.ToJson(ownUsert);
-    //    mDatabase.Child("users").Child(user.userId).Child("friends").Child(myId).SetRawJsonValueAsync(json2);
-    //    mDatabase.Child("users").Child(myId).Child("friends").Child(user.userId).SetRawJsonValueAsync(json1);
-    //    newFriendMessage.SetActive(true);
-    //    newFriendMessage.GetComponentInChildren<Text>().text = "Ahora eres amigo de " + user.username;
-    //    DestroyImmediate(notificacion.gameObject);
-    //}
+        string json1 = JsonUtility.ToJson(user);
+        string json2 = JsonUtility.ToJson(ownUsert);
+        mDatabase.Child("users").Child(user.Id).Child("friends").Child(myId).SetRawJsonValueAsync(json2);
+        mDatabase.Child("users").Child(myId).Child("friends").Child(user.Id).SetRawJsonValueAsync(json1);
+        requestAccepted.SetActive(true);
+        requestAccepted.GetComponentInChildren<Text>().text = "Ahora eres amigo de " + user.username;
+        DestroyImmediate(notificacion.gameObject);
+    }
 
 
     [System.Serializable]
