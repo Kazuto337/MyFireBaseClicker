@@ -62,6 +62,7 @@ public class UsersOnlineController : MonoBehaviour
         {
             if (item.Key.ToString() == "id")
             {
+                print("el user id encontrado es" + item.Value);
                 if (item.Value.ToString() != UserId)
                 {
                     print("el user id encontrado es" + item.Value);
@@ -72,7 +73,7 @@ public class UsersOnlineController : MonoBehaviour
                     onlineUser.SetActive(true);
                     userList.Add(item.Value.ToString(), onlineUser);
 
-                    onUserChange?.Invoke(item.Value.ToString(), true);
+                    //onUserChange?.Invoke(item.Value.ToString(), true);
                 }
             }
         }
