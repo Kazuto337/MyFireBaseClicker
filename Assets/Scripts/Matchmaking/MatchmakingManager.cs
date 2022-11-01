@@ -14,10 +14,9 @@ namespace Managers
         private FirebaseDatabase _database;
         private DatabaseReference _refNew;
         private DatabaseReference _refCurrentGame;
-        public string playerID;
         public bool gameFound;
-        public bool gameReady, opponentReady;
-        public string opponent;
+        private bool gameReady, opponentReady;
+        private string opponent;
 
         public static MatchmakingManager instance;
 
@@ -42,7 +41,7 @@ namespace Managers
         {
             if(gameFound) return;
             var json = e.Snapshot.GetRawJsonValue();
-            if (string.IsNullOrEmpty(playerID))
+            if (string.IsNullOrEmpty(MainManager.Instance.currentLocalPlayerId))
             {
                 return;
             }
@@ -50,7 +49,7 @@ namespace Managers
             if (string.IsNullOrEmpty(json)) return;
             foreach (DataSnapshot child in e.Snapshot.Children)
             {
-                if (String.CompareOrdinal(child.Key, playerID) == 0) continue;
+                if (String.CompareOrdinal(child.Key, MainManager.Instance.currentLocalPlayerId) == 0) continue;
                 if (child.Child("value").Value.ToString() != "Waiting") return;
 
                 QueueStatus queue = new QueueStatus
@@ -59,7 +58,7 @@ namespace Managers
                 };
                 _refNew.ValueChanged -= RefNewOnValueChanged;
                 
-                _database.GetReference($"matchmaking").Child("queue").Child(playerID)
+                _database.GetReference($"matchmaking").Child("queue").Child(MainManager.Instance.currentLocalPlayerId)
                     .SetRawJsonValueAsync(JsonUtility.ToJson(queue));
                 
                 gameFound = true;
@@ -67,7 +66,7 @@ namespace Managers
                 opponent = child.Key;
                 _refCurrentGame = _database.GetReference($"matchmaking/games/{opponent}");
                 _refCurrentGame.ValueChanged += RefCurrentGameOnValueChanged;
-                _database.GetReference($"matchmaking").Child("games").Child(playerID).SetRawJsonValueAsync(JsonUtility.ToJson(game));
+                _database.GetReference($"matchmaking").Child("games").Child(MainManager.Instance.currentLocalPlayerId).SetRawJsonValueAsync(JsonUtility.ToJson(game));
                 gameReady = false;
                 opponentReady = false;
             }
@@ -93,7 +92,7 @@ namespace Managers
             {
                 value = "Waiting"
             };
-            _database.GetReference($"matchmaking").Child("queue").Child(playerID).SetRawJsonValueAsync(JsonUtility.ToJson(queue));
+            _database.GetReference($"matchmaking").Child("queue").Child(MainManager.Instance.currentLocalPlayerId).SetRawJsonValueAsync(JsonUtility.ToJson(queue));
             _refNew.ValueChanged += RefNewOnValueChanged;
         }
         public void SetReady()
@@ -103,7 +102,7 @@ namespace Managers
                 playerReady = true
             };
             gameReady = true;
-            _database.GetReference($"matchmaking").Child("games").Child(playerID).SetRawJsonValueAsync(JsonUtility.ToJson(game));
+            _database.GetReference($"matchmaking").Child("games").Child(MainManager.Instance.currentLocalPlayerId).SetRawJsonValueAsync(JsonUtility.ToJson(game));
             StartGame();
         }
         public void LeaveQueue()
@@ -114,7 +113,7 @@ namespace Managers
             {
                 value = "Leave"
             };
-            _database.GetReference($"matchmaking").Child("queue").Child(playerID).SetRawJsonValueAsync(JsonUtility.ToJson(queue));
+            _database.GetReference($"matchmaking").Child("queue").Child(MainManager.Instance.currentLocalPlayerId).SetRawJsonValueAsync(JsonUtility.ToJson(queue));
             _refNew.ValueChanged -= RefNewOnValueChanged;
         }
         private void OnDestroy()
