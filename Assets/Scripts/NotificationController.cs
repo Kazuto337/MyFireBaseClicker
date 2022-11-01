@@ -17,27 +17,30 @@ public class NotificationController : MonoBehaviour
     {
         instance = this;
     }
+
     public void AddNotificationFriendRequest(FriendRequest fR)
     {
         panel.SetActive(true);
 
         Debug.Log(fR.username);
-        string text = fR.username + " te ha enviado una solicitud de amigo";
+        string text = fR.username + " has sent you a friend request.";
         GameObject newNotification = Instantiate(notification, notification.transform.parent);
         newNotification.SetActive(true);
         newNotification.GetComponent<Notification>().text.text = text;
         newNotification.GetComponent<Notification>().fR = fR;
     }
+
     public void AddNotificationFriendAccepted(OwnFriend friend)
     {
         panel.SetActive(true);
 
         Debug.Log(friend.username);
-        string text = friend.username + " ha comenzado a ser tu amigo";
+        string text = friend.username + " and you are friend now.";
         GameObject newNotification = Instantiate(newFriendRequest, notification.transform.parent);
         newNotification.SetActive(true);
         newNotification.GetComponent<Notification>().text.text = text;
     }
+
     public void AddPopUpNotification(string message)
     {
         StartCoroutine(ShowNotification(message));

@@ -9,8 +9,6 @@ using Firebase;
 
 public class UsersOnlineController : MonoBehaviour
 {
-    public static UsersOnlineController instance;
-
     // Start is called before the first frame update
     DatabaseReference mDatabase;
     GameState _GameState;
@@ -19,18 +17,12 @@ public class UsersOnlineController : MonoBehaviour
     [SerializeField] GameObject userLayout, userListPanel;
     public Dictionary<string, GameObject> userList = new Dictionary<string, GameObject>();
 
-    private void Awake()
-    {
-        instance = this;
-    }
-
     void Start()
     {
         mDatabase = FirebaseDatabase.DefaultInstance.RootReference;
         _GameState = GameObject.Find("UserController").GetComponent<GameState>();
         _GameState.OnDataReady += InitUsersOnlineController;
         UserId = FirebaseAuth.DefaultInstance.CurrentUser.UserId;
-
     }
 
     public void InitUsersOnlineController()
@@ -60,7 +52,10 @@ public class UsersOnlineController : MonoBehaviour
         if ((string)userConnected["id"] != UserId)
         {
             userLayout.GetComponentInChildren<Text>().text = (string)userConnected["username"];
+            userLayout.GetComponent<Data>().username = (string)userConnected["username"];
+            userLayout.GetComponent<Data>().userId = (string)userConnected["id"];
             GameObject onlineUser = Instantiate(userLayout, userListPanel.transform);
+            onlineUser.SetActive(true);
             userList.Add((string)userConnected["id"], onlineUser);
         }
     }

@@ -43,7 +43,7 @@ public class FireBaseManager : MonoBehaviour
         DontDestroyOnLoad(gameObject);
         if (_instance != null && _instance != this)
         {
-            Destroy(instance.gameObject);
+            DestroyImmediate(instance.gameObject);
         }
         else _instance = this;
 

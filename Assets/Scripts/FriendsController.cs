@@ -7,12 +7,13 @@ using UnityEngine.UI;
 
 public class FriendsController : MonoBehaviour
 {
-    public Text username;
+    public Text futureFriend;
     public GameObject message;
-    public GameObject newFriendMessage;
+    public GameObject requestAccepted;
     public GameObject requestPanel;
-    //private User selectedUser;
-    public GameObject friendSlot;
+    private string selectedUser;
+    private string selectedId;
+    [SerializeField] GameObject friendLayout, friendListPanel;
     private DatabaseReference mDatabase;
     Dictionary<string, FriendRequest> frRequests = new Dictionary<string, FriendRequest>();
     Dictionary<string, OwnFriend> friendsDic = new Dictionary<string, OwnFriend>();
@@ -39,7 +40,7 @@ public class FriendsController : MonoBehaviour
     {
 
 
-        string myId = PlayerPrefs.GetString("userID");
+        string myId = FirebaseAuth.DefaultInstance.CurrentUser.UserId;
 
         var userOnlineRef = FirebaseDatabase.DefaultInstance
         .GetReference($"users/{myId}");
@@ -60,10 +61,10 @@ public class FriendsController : MonoBehaviour
             Dictionary<string, object> userList = (Dictionary<string, object>)args.Snapshot.Value;
             if (userList.ContainsKey("friendRequests"))
             {
-                Dictionary<string, object> request = (Dictionary<string, object>)userList["friendRequests"];
-                foreach (var userDoc in request)
+                Dictionary<string, object> requests = (Dictionary<string, object>)userList["friendRequests"];
+                foreach (var request in requests)
                 {
-                    Dictionary<string, object> userOnline = (Dictionary<string, object>)userDoc.Value;
+                    Dictionary<string, object> userOnline = (Dictionary<string, object>)request.Value;
                     FriendRequest fR = new FriendRequest((string)userOnline["sender"], (bool)userOnline["accepted"], (string)userOnline["requestId"], (string)userOnline["username"]);
                     if (!frRequests.ContainsKey(fR.requestId))
                     {
@@ -72,9 +73,6 @@ public class FriendsController : MonoBehaviour
                             frRequests.Add(fR.requestId, fR);
                             NotificationController.instance.AddNotificationFriendRequest(fR);
                         }
-
-
-
                     }
                 }
             }
@@ -88,59 +86,54 @@ public class FriendsController : MonoBehaviour
 
                     if (!friendsDic.ContainsKey(fR.Id))
                     {
-
-
                         friendsDic.Add(fR.Id, fR);
                         NotificationController.instance.AddNotificationFriendAccepted(fR);
 
-                        GameObject friendSlot_ = Instantiate(friendSlot, friendSlot.transform.parent);
-                        friendSlot_.gameObject.SetActive(true);
-                        friendSlot_.GetComponentInChildren<Text>().text = fR.username;
+                        GameObject _friendSlot = Instantiate(friendLayout, friendListPanel.transform);
+                        _friendSlot.gameObject.SetActive(true);
+                        _friendSlot.GetComponentInChildren<Text>().text = fR.username;
                     }
-
-
-
                 }
             }
         }
     }
 
-    //public void ShowRequestInfo(Id id)
-    //{
-    //    selectedUser = UsersOnlineController.instance.userList[id.userId];
-    //    string requestId = id + "r";
-    //    if (!friendsDic.ContainsKey(selectedUser.userId) && !frRequests.ContainsKey(requestId))
-    //    {
-    //        requestPanel.SetActive(true);
-    //        username.text = selectedUser.username;
+    public void ShowRequestInfo(Data data)
+    {
+        selectedUser = data.username;
+        selectedId = data.userId;
+        string requestId = data + "request";
+        if (!friendsDic.ContainsKey(selectedId) && !frRequests.ContainsKey(requestId))
+        {
+            requestPanel.SetActive(true);
+            futureFriend.text = selectedUser;
 
-    //    }
-    //    else
-    //    {
-    //        string m = "Ya eres amigo de " + selectedUser.username + " o tienes una solicitud pendiente";
-    //        NotificationController.instance.AddPopUpNotification(m);
-    //    }
+        }
+        else
+        {
+            string m = "Ya eres amigo de " + selectedUser + " o tienes una solicitud pendiente";
+            NotificationController.instance.AddPopUpNotification(m);
+        }
 
-    //}
+    }
 
-    //public void SendFriendRequest()
-    //{
+    public void SendFriendRequest()
+    {
+        mDatabase = FirebaseDatabase.DefaultInstance.RootReference;
 
-    //    mDatabase = FirebaseDatabase.DefaultInstance.RootReference;
+        string myId = FirebaseAuth.DefaultInstance.CurrentUser.UserId;
+        string username = mDatabase.Child("users/" + myId).Child("username").GetValueAsync().ToString();
+        string requestId = myId + "request";
 
-    //    string myId = PlayerPrefs.GetString("userID");
-    //    string username = PlayerPrefs.GetString("username");
-    //    string requestId = myId + "r";
+        FriendRequest friendRequest = new FriendRequest(myId, false, requestId, username);
+        Debug.Log("Send" + myId);
 
-    //    FriendRequest friendRequest = new FriendRequest(myId, false, requestId, username);
-    //    Debug.Log("Send" + myId);
+        string json = JsonUtility.ToJson(friendRequest);
+        mDatabase.Child("users").Child(selectedId).Child("friendRequests").Child(requestId).SetRawJsonValueAsync(json);
 
-    //    string json = JsonUtility.ToJson(friendRequest);
-    //    mDatabase.Child("users").Child(selectedUser.userId).Child("friendRequests").Child(requestId).SetRawJsonValueAsync(json);
-
-    //    requestPanel.gameObject.SetActive(false);
-    //    message.gameObject.SetActive(true);
-    //}
+        requestPanel.gameObject.SetActive(false);
+        message.gameObject.SetActive(true);
+    }
 
     //public void AcceptFriendRequest(Notification notificacion)
     //{
@@ -188,7 +181,6 @@ public class FriendsController : MonoBehaviour
         {
             this.Id = Id;
             this.username = username;
-
         }
     }
 }
