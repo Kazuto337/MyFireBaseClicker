@@ -75,33 +75,35 @@ public class FriendsController : MonoBehaviour
                 foreach (var request in requests)
                 {
                     Dictionary<string, object> userOnline = (Dictionary<string, object>)request.Value;
-                    FriendRequest fR = new FriendRequest((string)userOnline["sender"], (bool)userOnline["accepted"], (string)userOnline["requestId"], (string)userOnline["username"]);
-                    if (!frRequests.ContainsKey(fR.requestId))
+                    FriendRequest friendRequest = new FriendRequest((string)userOnline["sender"], (bool)userOnline["accepted"], (string)userOnline["requestId"], (string)userOnline["username"]);
+                    if (!frRequests.ContainsKey(friendRequest.requestId))
                     {
-                        if (!fR.accepted)
+                        if (!friendRequest.accepted)
                         {
-                            frRequests.Add(fR.requestId, fR);
-                            NotificationController.instance.AddNotificationFriendRequest(fR);
+                            frRequests.Add(friendRequest.requestId, friendRequest);
+                            NotificationController.instance.AddNotificationFriendRequest(friendRequest);
                         }
                     }
                 }
             }
+
             if (userList.ContainsKey("friends"))
             {
                 Dictionary<string, object> friends = (Dictionary<string, object>)userList["friends"];
-                foreach (var userDoc in friends)
-                {
-                    Dictionary<string, object> friend = (Dictionary<string, object>)userDoc.Value;
-                    OwnFriend fR = new OwnFriend((string)friend["id"], (string)friend["userName"]);
 
-                    if (!friendsDic.ContainsKey(fR.Id))
+                foreach (var item in friends)
+                {
+                    Dictionary<string, object> friend = (Dictionary<string, object>)item.Value;
+                    OwnFriend frienRequest = new OwnFriend((string)friend["id"], (string)friend["userName"]);
+
+                    if (!friendsDic.ContainsKey(frienRequest.id))
                     {
-                        friendsDic.Add(fR.Id, fR);
-                        NotificationController.instance.AddNotificationFriendAccepted(fR);
+                        friendsDic.Add(frienRequest.id, frienRequest);
+                        NotificationController.instance.AddNotificationFriendAccepted(frienRequest);
 
                         GameObject _friendSlot = Instantiate(friendLayout, friendListPanel.transform);
                         _friendSlot.gameObject.SetActive(true);
-                        _friendSlot.GetComponentInChildren<Text>().text = fR.username;
+                        _friendSlot.GetComponentInChildren<Text>().text = frienRequest.username;
                     }
                 }
             }
@@ -157,8 +159,8 @@ public class FriendsController : MonoBehaviour
 
         string json1 = JsonUtility.ToJson(user);
         string json2 = JsonUtility.ToJson(ownUsert);
-        mDatabase.Child("users").Child(user.Id).Child("friends").Child(myId).SetRawJsonValueAsync(json2);
-        mDatabase.Child("users").Child(myId).Child("friends").Child(user.Id).SetRawJsonValueAsync(json1);
+        mDatabase.Child("users").Child(user.id).Child("friends").Child(myId).SetRawJsonValueAsync(json2);
+        mDatabase.Child("users").Child(myId).Child("friends").Child(user.id).SetRawJsonValueAsync(json1);
         requestAccepted.SetActive(true);
         requestAccepted.GetComponentInChildren<Text>().text = "Ahora eres amigo de " + user.username;
         DestroyImmediate(notificacion.gameObject);
@@ -200,11 +202,11 @@ public class FriendsController : MonoBehaviour
     public class OwnFriend
     {
 
-        public string Id;
+        public string id;
         public string username;
-        public OwnFriend(string Id, string username)
+        public OwnFriend(string id, string username)
         {
-            this.Id = Id;
+            this.id = id;
             this.username = username;
         }
     }

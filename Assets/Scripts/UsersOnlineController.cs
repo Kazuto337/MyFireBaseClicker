@@ -98,12 +98,14 @@ public class UsersOnlineController : MonoBehaviour
 
     private void SetUserOnline()
     {
+        UserId = FirebaseAuth.DefaultInstance.CurrentUser.UserId;
         mDatabase.Child("users-online").Child(UserId).Child("username").SetValueAsync(_GameState.username);
         mDatabase.Child("users-online").Child(UserId).Child("id").SetValueAsync(UserId);
     }
 
     private void SetUserOffline()
     {
+        UserId = FirebaseAuth.DefaultInstance.CurrentUser.UserId;
         mDatabase.Child("users-online").Child(UserId).SetValueAsync(null);
     }
 
