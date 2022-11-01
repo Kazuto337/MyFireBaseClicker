@@ -119,7 +119,6 @@ public class FriendsController : MonoBehaviour
         {
             requestPanel.SetActive(true);
             futureFriend.text = selectedUser;
-
         }
         else
         {
