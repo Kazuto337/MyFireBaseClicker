@@ -57,6 +57,7 @@ public class UsersOnlineController : MonoBehaviour
                 userLayout.GetComponentInChildren<Text>().text = userConnected["username"].ToString();
                 GameObject friend = Instantiate(userLayout, userListPanel.transform);
                 usersList.Add(friend);
+                print("Usuarios Online son " + item.Value.ToString());
             }
         }
     }
