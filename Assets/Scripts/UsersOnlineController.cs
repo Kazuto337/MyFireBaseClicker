@@ -72,6 +72,7 @@ public class UsersOnlineController : MonoBehaviour
 
         foreach (GameObject item in usersList)
         {
+
             Destroy(item);
         }
 
