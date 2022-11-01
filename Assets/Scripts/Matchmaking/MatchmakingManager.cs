@@ -2,110 +2,162 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using APIs;
 using Firebase.Database;
 using Serializables;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace Managers
 {
     public class MatchmakingManager : MonoBehaviour
     {
-        private KeyValuePair<DatabaseReference, EventHandler<ValueChangedEventArgs>> queueListener;
+        private FirebaseDatabase _database;
+        private DatabaseReference _refNew;
+        private DatabaseReference _refCurrentGame;
+        public bool gameFound;
+        private bool gameReady, opponentReady;
+        private string opponent;
 
-        public void JoinQueue(string playerId, Action<string> onGameFound, Action<AggregateException> fallback)
-        {
-            StartCoroutine(ProccessQueue(playerId, onGameFound, fallback));
-        }
+        public static MatchmakingManager instance;
 
-        public IEnumerator ProccessQueue(string playerId, Action<string> onGameFound,
-            Action<AggregateException> fallback)
+        public void Awake()
         {
-            var DBTask = FirebaseDatabase.DefaultInstance.RootReference.Child("matchmaking").GetValueAsync();
-            yield return new WaitUntil(() => DBTask.IsCompleted);
-            if (DBTask.Exception != null)
+            DontDestroyOnLoad(gameObject);
+            if (instance != null && instance != this)
             {
-                Debug.LogError(message:$"Failed to register task with: {DBTask.Exception}");
+                Destroy(gameObject);
             }
-            else
+            else instance = this;
+        }
+
+        private void Start()
+        {
+            _database = FirebaseDatabase.DefaultInstance;
+            gameFound = false;
+            _refNew = _database.GetReference("matchmaking/queue");
+        }
+
+        private void RefNewOnValueChanged(object sender, ValueChangedEventArgs e)
+        {
+            if(gameFound) return;
+            var json = e.Snapshot.GetRawJsonValue();
+            if (string.IsNullOrEmpty(MainManager.Instance.currentLocalPlayerId))
             {
-                if (DBTask.Result.ChildrenCount <= 0)
+                return;
+            }
+
+            if (string.IsNullOrEmpty(json)) return;
+            foreach (DataSnapshot child in e.Snapshot.Children)
+            {
+                if (String.CompareOrdinal(child.Key, MainManager.Instance.currentLocalPlayerId) == 0) continue;
+                if (child.Child("value").Value.ToString() != "Waiting") return;
+
+                QueueStatus queue = new QueueStatus
                 {
-                    AddToQueue(playerId, onGameFound, fallback);
-                }
-                else
-                {
-                    bool gameFound = false;
-                    foreach (DataSnapshot child in DBTask.Result.Children)
-                    {
-                        if (child.Child("placeholder").Value.ToString() == "True")
-                        {
-                            if (child.Value.ToString() != MainManager.Instance.currentLocalPlayerId)
-                            {
-                                var GameId = child.Key;
-                                CreateGame(GameId, GameId, MainManager.Instance.currentLocalPlayerId);
-                                DatabaseAPI.PostJSON($"matchmaking/{GameId}/placeholder", "False", () => onGameFound(
-                                    GameId), fallback);
-                            }
-                        }
-                    }
-                }
+                    value = "OnGame"
+                };
+                _refNew.ValueChanged -= RefNewOnValueChanged;
+                
+                _database.GetReference($"matchmaking").Child("queue").Child(MainManager.Instance.currentLocalPlayerId)
+                    .SetRawJsonValueAsync(JsonUtility.ToJson(queue));
+                
+                gameFound = true;
+                Game game = new Game(child.Key);
+                opponent = child.Key;
+                _refCurrentGame = _database.GetReference($"matchmaking/games/{opponent}");
+                _refCurrentGame.ValueChanged += RefCurrentGameOnValueChanged;
+                _database.GetReference($"matchmaking").Child("games").Child(MainManager.Instance.currentLocalPlayerId).SetRawJsonValueAsync(JsonUtility.ToJson(game));
+                gameReady = false;
+                opponentReady = false;
             }
         }
 
-        public void AddToQueue(string playerId, Action<string> onGameFound, Action<AggregateException> fallback)
+        private void RefCurrentGameOnValueChanged(object sender, ValueChangedEventArgs e)
         {
-            DatabaseAPI.PostObject($"matchmaking/{playerId}/placeholder", "True",
-                () => queueListener = DatabaseAPI.ListenForValueChanged($"matchmaking/{playerId}/placeholder",
-                    args =>
-                    {
-                        var gameId =
-                            StringSerializationAPI.Deserialize(typeof(string), args.Snapshot.GetRawJsonValue()) as
-                                string;
-                        if (gameId == "True") return;
-                        LeaveQueue(playerId, () => onGameFound(
-                            gameId), fallback);
-                    }, fallback), fallback);
+            var json = e.Snapshot.GetRawJsonValue();
+            Debug.LogError(json);
+            if (string.IsNullOrEmpty(json)) return;
+            Game game = JsonUtility.FromJson<Game>(json);
+            if (!game.playerReady) return;
+            opponentReady = true;
+            _refCurrentGame.ValueChanged -= RefCurrentGameOnValueChanged;
+            StartGame();
         }
 
-        public void LeaveQueue(string playerId, Action callback, Action<AggregateException> fallback)
+        public void JoinQueue()
         {
-            DatabaseAPI.StopListeningForValueChanged(queueListener);
-            DatabaseAPI.PostJSON($"matchmaking/{playerId}/placeholder", "False", callback, fallback);
+            if (gameFound) return;
+            gameFound = false;
+            QueueStatus queue = new QueueStatus
+            {
+                value = "Waiting"
+            };
+            _database.GetReference($"matchmaking").Child("queue").Child(MainManager.Instance.currentLocalPlayerId).SetRawJsonValueAsync(JsonUtility.ToJson(queue));
+            _refNew.ValueChanged += RefNewOnValueChanged;
+        }
+        public void SetReady()
+        {
+            Game game = new Game(opponent)
+            {
+                playerReady = true
+            };
+            gameReady = true;
+            _database.GetReference($"matchmaking").Child("games").Child(MainManager.Instance.currentLocalPlayerId).SetRawJsonValueAsync(JsonUtility.ToJson(game));
+            StartGame();
+        }
+        public void LeaveQueue()
+        {
+            if (gameFound) return;
+            gameFound = false;
+            QueueStatus queue = new QueueStatus
+            {
+                value = "Leave"
+            };
+            _database.GetReference($"matchmaking").Child("queue").Child(MainManager.Instance.currentLocalPlayerId).SetRawJsonValueAsync(JsonUtility.ToJson(queue));
+            _refNew.ValueChanged -= RefNewOnValueChanged;
+        }
+        private void OnDestroy()
+        {
+            if (_refNew != null)
+            {
+                _refNew.ValueChanged -= RefNewOnValueChanged;
+            }
+            if (_refCurrentGame != null)
+            {
+                _refCurrentGame.ValueChanged -= RefCurrentGameOnValueChanged;
+            }
+            _refNew = null;
+            _database = null;
         }
 
-        public bool GameOn = false;
-
-        public void CreateGame(string gameId, string ID1, string ID2)
+        private void StartGame()
         {
-            Games G = new Games();
-            G.gameId = gameId;
-            gameInfo GF = new gameInfo();
-            GF.gameId = gameId;
-            GF.playerIds = new PlayerIds();
-            GF.playerIds._0 = ID1;
-            GF.playerIds._1 = ID2;
-            G.gameInfo = GF;
-            FirebaseDatabase.DefaultInstance.GetReference($"games/{gameId}").SetRawJsonValueAsync(JsonUtility.ToJson(G));
+            if (!gameReady || !opponentReady) return;
+
+            GameManager.instance.currentGameInfo = new GameInfo();
+            SceneManager.LoadScene("MatchedGame");
         }
     }
 }
+
 [Serializable]
-public class gameInfo
+public class QueueStatus
 {
-    public string gameId;
-    public PlayerIds playerIds;
+    public string value;
 }
 
 [Serializable]
-public class PlayerIds
+public class Game
 {
-    public string _0;
-    public string _1;
+    public string opponent;
+    public int playerPoints;
+    public bool playerReady;
+
+    public Game(string opponent)
+    {
+        this.opponent = opponent;
+        playerPoints = 0;
+        playerReady = false;
+    }
 }
 
-public class Games
-{
-    public string gameId;
-    public gameInfo gameInfo;
-}

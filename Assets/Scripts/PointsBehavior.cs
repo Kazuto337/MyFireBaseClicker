@@ -42,7 +42,7 @@ public class PointsBehavior : MonoBehaviour
         UserData data = new UserData();
         data.username = FireBaseManager.instance.user.DisplayName;
         data.score = float.Parse(scoreText.text);
-
+        
         string json = JsonUtility.ToJson(data);
         dbReference.Child("users").Child(userId).SetRawJsonValueAsync(json);
         gameScreen.SetActive(true);

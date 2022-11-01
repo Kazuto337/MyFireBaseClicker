@@ -8,6 +8,7 @@ using Firebase.Auth;
 using Firebase.Database;
 using Managers;
 using System;
+using UnityEngine.SceneManagement;
 
 public class FireBaseManager : MonoBehaviour
 {
@@ -35,13 +36,7 @@ public class FireBaseManager : MonoBehaviour
 
     public event Action OnLogOut;
 
-    public static FireBaseManager instance
-    {
-        get
-        {
-            return _instance;
-        }
-    }
+    public static FireBaseManager instance => _instance;
 
     private void Awake()
     {
@@ -57,7 +52,6 @@ public class FireBaseManager : MonoBehaviour
             dependencyStatus = task.Result;
             if (dependencyStatus == DependencyStatus.Available)
             {
-                //If they are avalible Initialize Firebase
                 InitializeFirebase();
             }
             else
@@ -67,6 +61,7 @@ public class FireBaseManager : MonoBehaviour
         });
         
     }
+
     private void InitializeFirebase()
     {
         auth = FirebaseAuth.DefaultInstance;
@@ -78,23 +73,18 @@ public class FireBaseManager : MonoBehaviour
 
     private void AuthStateChanged(object sender, System.EventArgs eventArgs)
     {
-        if (auth.CurrentUser != user)
+        if (auth.CurrentUser == user) return;
+        bool signedIn = user != auth.CurrentUser && auth.CurrentUser != null;
+        if (!signedIn && user != null)
         {
-            bool signedIn = user != auth.CurrentUser && auth.CurrentUser != null;
-            if (!signedIn && user != null)
-            {
-                Debug.Log("Signed Out");
-            }
-
-            user = auth.CurrentUser;
-
-            if (signedIn)
-            {
-                MainManager.Instance.currentLocalPlayerId = user.UserId;
-                Debug.Log($"Signed In: {user.DisplayName}");
-            }
+            Debug.Log("Signed Out");
         }
 
+        user = auth.CurrentUser;
+
+        if (!signedIn) return;
+        MainManager.Instance.currentLocalPlayerId = user.UserId;
+        Debug.Log($"Signed In: {user.DisplayName}");
     }
 
     public void ClearOutputs()
@@ -115,11 +105,10 @@ public class FireBaseManager : MonoBehaviour
 
     public void LogOutButton()
     {
-        //ClearOutputs();
         auth.SignOut();
         OnLogOut?.Invoke();
 
-        GameManager.instance.ChangeScene(0);
+        SceneManager.LoadScene("MainMenu");
     }
 
     IEnumerator Login(string _email, string _password)
@@ -161,7 +150,8 @@ public class FireBaseManager : MonoBehaviour
             if (user.IsEmailVerified)
             {
                 loginOutputText.text = "";
-                GameManager.instance.ChangeScene(1);
+                
+                SceneManager.LoadScene("Main");
             }
             else
             {
