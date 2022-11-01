@@ -13,7 +13,7 @@ public class GameState : MonoBehaviour
     public event Action OnDataReady;
     public static Action OnMenuEnter;
 
-    private void Start()
+    private void Awake()
     {
         userId = FirebaseAuth.DefaultInstance.CurrentUser.UserId;
 

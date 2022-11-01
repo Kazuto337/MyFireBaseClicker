@@ -94,9 +94,10 @@ public class FriendsController : MonoBehaviour
                 foreach (var item in friends)
                 {
                     Dictionary<string, object> friend = (Dictionary<string, object>)item.Value;
-                    if (friend.ContainsKey("friends"))
+
+                    if (friend.ContainsKey("id") && friend.ContainsKey("username"))
                     {
-                        MyFriend frienRequest = new MyFriend((string)friend["id"], (string)friend["userName"]);
+                        MyFriend frienRequest = new MyFriend((string)friend["id"], (string)friend["username"]);
 
                         if (!friendsDic.ContainsKey(frienRequest.id))
                         {

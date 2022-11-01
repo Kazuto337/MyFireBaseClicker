@@ -34,6 +34,7 @@ public class UsersOnlineController : MonoBehaviour
 
     public void InitUsersOnlineController()
     {
+        mDatabase = FirebaseDatabase.DefaultInstance.RootReference;
         FirebaseDatabase.DefaultInstance.LogLevel = LogLevel.Verbose;
         Debug.Log("Init users online controller");
         _ButtonLogout.OnLogOut += SetUserOffline;
@@ -56,19 +57,16 @@ public class UsersOnlineController : MonoBehaviour
 
         Dictionary<string, object> userConnected = (Dictionary<string, object>)args.Snapshot.Value;
 
-        if (userConnected.ContainsKey("id"))
+        if ((string)userConnected["id"] != UserId)
         {
-            if ((string)userConnected["id"] != UserId)
-            {
-                userLayout.GetComponentInChildren<Text>().text = (string)userConnected["username"];
-                userLayout.GetComponent<Data>().username = (string)userConnected["username"];
-                userLayout.GetComponent<Data>().userId = (string)userConnected["id"];
-                GameObject onlineUser = Instantiate(userLayout, userListPanel.transform);
-                onlineUser.SetActive(true);
-                userList.Add((string)userConnected["id"], onlineUser);
+            userLayout.GetComponentInChildren<Text>().text = (string)userConnected["username"];
+            userLayout.GetComponent<Data>().username = (string)userConnected["username"];
+            userLayout.GetComponent<Data>().userId = (string)userConnected["id"];
+            GameObject onlineUser = Instantiate(userLayout, userListPanel.transform);
+            onlineUser.SetActive(true);
+            userList.Add((string)userConnected["id"], onlineUser);
 
-                onUserChange?.Invoke((string)userConnected["id"], true);
-            }
+            onUserChange?.Invoke((string)userConnected["id"], true);
         }
     }
 
