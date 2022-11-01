@@ -64,14 +64,15 @@ public class UsersOnlineController : MonoBehaviour
             {
                 if (item.Value.ToString() != UserId)
                 {
+                    print("el user id encontrado es" + item.Value);
                     userLayout.GetComponentInChildren<Text>().text = (string)userConnected["username"];
                     userLayout.GetComponent<Data>().username = (string)userConnected["username"];
-                    userLayout.GetComponent<Data>().userId = (string)userConnected["id"];
+                    userLayout.GetComponent<Data>().userId = item.Value.ToString();
                     GameObject onlineUser = Instantiate(userLayout, userListPanel.transform);
                     onlineUser.SetActive(true);
-                    userList.Add((string)userConnected["id"], onlineUser);
+                    userList.Add(item.Value.ToString(), onlineUser);
 
-                    onUserChange?.Invoke((string)userConnected["id"], true);
+                    onUserChange?.Invoke(item.Value.ToString(), true);
                 }
             }
         }
