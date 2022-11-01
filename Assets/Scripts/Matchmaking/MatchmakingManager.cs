@@ -22,12 +22,15 @@ namespace Managers
 
         public void Awake()
         {
-            DontDestroyOnLoad(gameObject);
             if (instance != null && instance != this)
             {
                 Destroy(gameObject);
             }
-            else instance = this;
+            else
+            {
+                DontDestroyOnLoad(gameObject);
+                instance = this;
+            }
         }
 
         private void Start()
@@ -75,7 +78,6 @@ namespace Managers
         private void RefCurrentGameOnValueChanged(object sender, ValueChangedEventArgs e)
         {
             var json = e.Snapshot.GetRawJsonValue();
-            Debug.LogError(json);
             if (string.IsNullOrEmpty(json)) return;
             Game game = JsonUtility.FromJson<Game>(json);
             if (!game.playerReady) return;
@@ -134,7 +136,19 @@ namespace Managers
         {
             if (!gameReady || !opponentReady) return;
 
-            GameManager.instance.currentGameInfo = new GameInfo();
+            if (_refNew != null)
+            {
+                _refNew.ValueChanged -= RefNewOnValueChanged;
+            }
+            if (_refCurrentGame != null)
+            {
+                _refCurrentGame.ValueChanged -= RefCurrentGameOnValueChanged;
+            }
+            GameManager.instance.currentGameInfo = new GameInfo
+            {
+                localPlayerId = MainManager.Instance.currentLocalPlayerId,
+                opponentPlayerId = opponent
+            };
             SceneManager.LoadScene("MatchedGame");
         }
     }
