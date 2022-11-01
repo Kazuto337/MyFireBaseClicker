@@ -9,13 +9,20 @@ using Firebase;
 
 public class UsersOnlineController : MonoBehaviour
 {
+    public static UsersOnlineController instance;
+
     // Start is called before the first frame update
     DatabaseReference mDatabase;
     GameState _GameState;
     string UserId;
     [SerializeField] FireBaseManager _ButtonLogout;
     [SerializeField] GameObject userLayout, userListPanel;
-    Dictionary<string, GameObject> activeList = new Dictionary<string, GameObject>();
+    public Dictionary<string, GameObject> userList = new Dictionary<string, GameObject>();
+
+    private void Awake()
+    {
+        instance = this;
+    }
 
     void Start()
     {
@@ -50,11 +57,11 @@ public class UsersOnlineController : MonoBehaviour
 
         Dictionary<string, object> userConnected = (Dictionary<string, object>)args.Snapshot.Value;
 
-        if (userConnected["username"].ToString() != _GameState.username)
+        if ((string)userConnected["id"] != UserId)
         {
             userLayout.GetComponentInChildren<Text>().text = (string)userConnected["username"];
             GameObject onlineUser = Instantiate(userLayout, userListPanel.transform);
-            activeList.Add((string)userConnected["username"], onlineUser);
+            userList.Add((string)userConnected["id"], onlineUser);
         }
     }
 
@@ -68,12 +75,12 @@ public class UsersOnlineController : MonoBehaviour
 
         Dictionary<string, object> userDisconnected = (Dictionary<string, object>)args.Snapshot.Value;
 
-        if (activeList.ContainsKey((string)userDisconnected["username"]))
+        if (userList.ContainsKey((string)userDisconnected["id"]))
         {
             GameObject disconnectedUser;
-            activeList.TryGetValue((string)userDisconnected["username"], out disconnectedUser);
-            Destroy(disconnectedUser);
-            activeList.Remove((string)userDisconnected["username"]);
+            userList.TryGetValue((string)userDisconnected["id"], out disconnectedUser);
+            DestroyImmediate(disconnectedUser);
+            userList.Remove((string)userDisconnected["id"]);
         }
     }
 
@@ -86,6 +93,7 @@ public class UsersOnlineController : MonoBehaviour
     private void SetUserOnline()
     {
         mDatabase.Child("users-online").Child(UserId).Child("username").SetValueAsync(_GameState.username);
+        mDatabase.Child("users-online").Child(UserId).Child("id").SetValueAsync(UserId);
     }
 
     private void SetUserOffline()
