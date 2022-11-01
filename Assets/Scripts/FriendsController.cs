@@ -17,7 +17,7 @@ public class FriendsController : MonoBehaviour
     [SerializeField] GameObject friendLayout, friendListPanel;
     private DatabaseReference mDatabase;
     Dictionary<string, FriendRequest> frRequests = new Dictionary<string, FriendRequest>();
-    Dictionary<string, OwnFriend> friendsDic = new Dictionary<string, OwnFriend>();
+    Dictionary<string, MyFriend> friendsDic = new Dictionary<string, MyFriend>();
 
     private void OnEnable()
     {
@@ -94,16 +94,19 @@ public class FriendsController : MonoBehaviour
                 foreach (var item in friends)
                 {
                     Dictionary<string, object> friend = (Dictionary<string, object>)item.Value;
-                    OwnFriend frienRequest = new OwnFriend((string)friend["id"], (string)friend["userName"]);
-
-                    if (!friendsDic.ContainsKey(frienRequest.id))
+                    if (friend.ContainsKey("friends"))
                     {
-                        friendsDic.Add(frienRequest.id, frienRequest);
-                        NotificationController.instance.AddNotificationFriendAccepted(frienRequest);
+                        MyFriend frienRequest = new MyFriend((string)friend["id"], (string)friend["userName"]);
 
-                        GameObject _friendSlot = Instantiate(friendLayout, friendListPanel.transform);
-                        _friendSlot.gameObject.SetActive(true);
-                        _friendSlot.GetComponentInChildren<Text>().text = frienRequest.username;
+                        if (!friendsDic.ContainsKey(frienRequest.id))
+                        {
+                            friendsDic.Add(frienRequest.id, frienRequest);
+                            NotificationController.instance.AddNotificationFriendAccepted(frienRequest);
+
+                            GameObject _friendSlot = Instantiate(friendLayout, friendListPanel.transform);
+                            _friendSlot.gameObject.SetActive(true);
+                            _friendSlot.GetComponentInChildren<Text>().text = frienRequest.username;
+                        }
                     }
                 }
             }
@@ -153,8 +156,8 @@ public class FriendsController : MonoBehaviour
 
         mDatabase = FirebaseDatabase.DefaultInstance.RootReference;
         mDatabase.Child("users").Child(myId).Child("friendRequests").Child(notificacion.fR.requestId).Child("accepted").SetValueAsync(true);
-        OwnFriend user = new OwnFriend(notificacion.fR.sender, notificacion.fR.username);
-        OwnFriend ownUsert = new OwnFriend(myId, myUsername);
+        MyFriend user = new MyFriend(notificacion.fR.sender, notificacion.fR.username);
+        MyFriend ownUsert = new MyFriend(myId, myUsername);
 
         string json1 = JsonUtility.ToJson(user);
         string json2 = JsonUtility.ToJson(ownUsert);
@@ -198,12 +201,12 @@ public class FriendsController : MonoBehaviour
     }
 
     [System.Serializable]
-    public class OwnFriend
+    public class MyFriend
     {
 
         public string id;
         public string username;
-        public OwnFriend(string id, string username)
+        public MyFriend(string id, string username)
         {
             this.id = id;
             this.username = username;

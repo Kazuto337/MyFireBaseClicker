@@ -30,7 +30,7 @@ public class NotificationController : MonoBehaviour
         newNotification.GetComponent<Notification>().fR = fR;
     }
 
-    public void AddNotificationFriendAccepted(OwnFriend friend)
+    public void AddNotificationFriendAccepted(MyFriend friend)
     {
         panel.SetActive(true);
 
