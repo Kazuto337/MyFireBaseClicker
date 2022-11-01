@@ -23,6 +23,15 @@ public class MainMenuSceneHandler : MonoBehaviour
 
     private void Update()
     {
+        if (auth.CurrentUser == null)
+        {
+            return;
+        }
+
+        if (MainManager.Instance == null) 
+        {
+            return;
+        }
         if (MainManager.Instance.currentLocalPlayerId == auth.CurrentUser.UserId)
         {
             SceneManager.LoadScene("Main");
