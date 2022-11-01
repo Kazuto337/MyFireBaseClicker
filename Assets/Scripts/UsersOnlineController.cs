@@ -14,7 +14,6 @@ public class UsersOnlineController : MonoBehaviour
     DatabaseReference mDatabase;
     GameState _GameState;
     string UserId;
-    [SerializeField] FireBaseManager _ButtonLogout;
     [SerializeField] GameObject userLayout, userListPanel;
     public Dictionary<string, GameObject> userList = new Dictionary<string, GameObject>();
     public static Action<string, bool> onUserChange;
@@ -27,9 +26,10 @@ public class UsersOnlineController : MonoBehaviour
     void Awake()
     {
         mDatabase = FirebaseDatabase.DefaultInstance.RootReference;
-        _GameState = GameObject.Find("UserController").GetComponent<GameState>();
+        _GameState = GetComponent<GameState>();
         _GameState.OnDataReady += InitUsersOnlineController;
         UserId = FirebaseAuth.DefaultInstance.CurrentUser.UserId;
+        userLayout.SetActive(false);
     }
 
     public void InitUsersOnlineController()
@@ -37,7 +37,7 @@ public class UsersOnlineController : MonoBehaviour
         mDatabase = FirebaseDatabase.DefaultInstance.RootReference;
         FirebaseDatabase.DefaultInstance.LogLevel = LogLevel.Verbose;
         Debug.Log("Init users online controller");
-        _ButtonLogout.OnLogOut += SetUserOffline;
+        FireBaseManager.instance.OnLogOut += SetUserOffline;
         var userOnlineRef = FirebaseDatabase.DefaultInstance
         .GetReference("users-online");
 
@@ -49,13 +49,15 @@ public class UsersOnlineController : MonoBehaviour
 
     private void HandleChildAdded(object sender, ChildChangedEventArgs args)
     {
-
+        if (userLayout == null)
+        {
+            return;
+        }
         if (args.DatabaseError != null)
         {
             Debug.LogError(args.DatabaseError.Message);
             return;
         }
-
         Dictionary<string, object> userConnected = (Dictionary<string, object>)args.Snapshot.Value;
 
         foreach (var item in userConnected)
@@ -104,6 +106,7 @@ public class UsersOnlineController : MonoBehaviour
     {
         mDatabase.Child("users-online").ChildAdded -= HandleChildAdded;
         mDatabase.Child("users-online").ChildRemoved -= HandleChildRemoved;
+        FireBaseManager.instance.OnLogOut -= SetUserOffline;
     }
 
     private void SetUserOnline()
@@ -115,7 +118,10 @@ public class UsersOnlineController : MonoBehaviour
 
     private void SetUserOffline()
     {
-        UserId = FirebaseAuth.DefaultInstance.CurrentUser.UserId;
+        if (string.IsNullOrEmpty(UserId))
+        {
+            return;
+        }
         mDatabase.Child("users-online").Child(UserId).SetValueAsync(null);
     }
 
