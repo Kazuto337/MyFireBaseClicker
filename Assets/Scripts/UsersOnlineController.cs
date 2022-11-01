@@ -15,7 +15,6 @@ public class UsersOnlineController : MonoBehaviour
     string UserId;
     [SerializeField] FireBaseManager _ButtonLogout;
     [SerializeField] GameObject userLayout, userListPanel;
-    [SerializeField] List<GameObject> usersList;
 
     void Start()
     {
@@ -47,17 +46,13 @@ public class UsersOnlineController : MonoBehaviour
             Debug.LogError(args.DatabaseError.Message);
             return;
         }
-        string a = FirebaseAuth.DefaultInstance.CurrentUser.DisplayName;
-        print("el usuario actual es" + a);
+
         Dictionary<string, object> userConnected = (Dictionary<string, object>)args.Snapshot.Value;
-        foreach (var item in userConnected)
+
+        if (userConnected["username"].ToString() != _GameState.username)
         {
-            if (item.Value.ToString() != a)
-            {
-                userLayout.GetComponentInChildren<Text>().text = userConnected["username"].ToString();
-                GameObject friend = Instantiate(userLayout, userListPanel.transform);
-                usersList.Add(friend);
-            }
+            userLayout.GetComponentInChildren<Text>().text = userConnected["username"].ToString();
+            GameObject friend = Instantiate(userLayout, userListPanel.transform);
         }
     }
 
@@ -67,11 +62,6 @@ public class UsersOnlineController : MonoBehaviour
         {
             Debug.LogError(args.DatabaseError.Message);
             return;
-        }
-
-        foreach (GameObject item in usersList)
-        {
-            Destroy(item);
         }
 
         Dictionary<string, object> userDisconnected = (Dictionary<string, object>)args.Snapshot.Value;
