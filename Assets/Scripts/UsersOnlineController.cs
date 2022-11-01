@@ -77,6 +77,13 @@ public class UsersOnlineController : MonoBehaviour
 
         Dictionary<string, object> userDisconnected = (Dictionary<string, object>)args.Snapshot.Value;
         Debug.Log(userDisconnected["username"] + " is offline");
+
+    }
+
+    private void OnDestroy()
+    {
+        mDatabase.Child("users-online").ChildAdded -= HandleChildAdded;
+        mDatabase.Child("users-online").ChildRemoved -= HandleChildRemoved;
     }
 
     private void SetUserOnline()
@@ -92,6 +99,8 @@ public class UsersOnlineController : MonoBehaviour
     void OnApplicationQuit()
     {
         SetUserOffline();
+        mDatabase.Child("users-online").ChildAdded -= HandleChildAdded;
+        mDatabase.Child("users-online").ChildRemoved -= HandleChildRemoved;
     }
 
 }
