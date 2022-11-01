@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,14 +10,49 @@ using UnityEngine.UI;
 
 public class MatchedGameSceneHandler : MonoBehaviour
 {
-    public PlayerScoreHandler[] playerScores;
-
+    public Text[] playerScores;
+    private int points = 0;
+    private FirebaseDatabase _database;
+    private DatabaseReference _refNew;
+    private DatabaseReference _refCurrentGame;
+    private string opponent;
+    private string playerID;
     private void Start()
     {
-        playerScores[0].playerId = GameManager.instance.currentGameInfo.localPlayerId;
-        playerScores[0].Init();
-        playerScores[1].playerId = GameManager.instance.currentGameInfo.opponentPlayerId;
-        playerScores[1].Init();
+        playerScores[0].text = "0";
+        playerScores[1].text = "0";
+        points = 0;
+        _database = FirebaseDatabase.DefaultInstance;
+        playerID = GameManager.instance.currentGameInfo.localPlayerId;
+        opponent = GameManager.instance.currentGameInfo.opponentPlayerId;
+        _refCurrentGame = _database.GetReference($"matchmaking/games/{opponent }");
+        _refCurrentGame.ValueChanged += RefCurrentGameOnValueChanged;
+    }
+
+    
+    private void RefCurrentGameOnValueChanged(object sender, ValueChangedEventArgs e)
+    {
+        var json = e.Snapshot.GetRawJsonValue();
+        if (string.IsNullOrEmpty(json)) return;
+        Game game = JsonUtility.FromJson<Game>(json);
+        playerScores[1].text = game.playerPoints.ToString();
+    }
+    
+    public void AddPoints()
+    {
+        points++;
+        playerScores[0].text = points.ToString();
+        Game game = new Game(opponent)
+        {
+            playerReady = true,
+            playerPoints = points
+        };
+        _database.GetReference($"matchmaking").Child("games").Child(playerID).SetRawJsonValueAsync(JsonUtility.ToJson(game));
+    }
+
+    private void OnDestroy()
+    {
+        _refCurrentGame.ValueChanged -= RefCurrentGameOnValueChanged;
     }
 
     public void Leave()
