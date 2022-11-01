@@ -24,7 +24,7 @@ public class UsersOnlineController : MonoBehaviour
         onUserChange = null;
     }
 
-    void Start()
+    void Awake()
     {
         mDatabase = FirebaseDatabase.DefaultInstance.RootReference;
         _GameState = GameObject.Find("UserController").GetComponent<GameState>();
@@ -41,10 +41,10 @@ public class UsersOnlineController : MonoBehaviour
         var userOnlineRef = FirebaseDatabase.DefaultInstance
         .GetReference("users-online");
 
-        SetUserOnline();
-
         mDatabase.Child("users-online").ChildAdded += HandleChildAdded;
         mDatabase.Child("users-online").ChildRemoved += HandleChildRemoved;
+
+        SetUserOnline();
     }
 
     private void HandleChildAdded(object sender, ChildChangedEventArgs args)
