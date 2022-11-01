@@ -11,6 +11,7 @@ public class GameState : MonoBehaviour
     public string userId;
 
     public event Action OnDataReady;
+    public static Action OnMenuEnter;
 
     private void Start()
     {
@@ -38,6 +39,7 @@ public class GameState : MonoBehaviour
                     username = (string)userData["username"];
 
                     OnDataReady?.Invoke();
+                    OnMenuEnter?.Invoke();
                 }
             });
     }

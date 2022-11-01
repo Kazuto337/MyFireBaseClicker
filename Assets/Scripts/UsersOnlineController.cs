@@ -6,6 +6,7 @@ using UnityEngine.EventSystems;
 using Firebase.Database;
 using UnityEngine.UI;
 using Firebase;
+using System;
 
 public class UsersOnlineController : MonoBehaviour
 {
@@ -16,6 +17,12 @@ public class UsersOnlineController : MonoBehaviour
     [SerializeField] FireBaseManager _ButtonLogout;
     [SerializeField] GameObject userLayout, userListPanel;
     public Dictionary<string, GameObject> userList = new Dictionary<string, GameObject>();
+    public static Action<string, bool> onUserChange;
+
+    private void OnDisable()
+    {
+        onUserChange = null;
+    }
 
     void Start()
     {
@@ -57,6 +64,8 @@ public class UsersOnlineController : MonoBehaviour
             GameObject onlineUser = Instantiate(userLayout, userListPanel.transform);
             onlineUser.SetActive(true);
             userList.Add((string)userConnected["id"], onlineUser);
+
+            onUserChange?.Invoke((string)userConnected["id"], true);
         }
     }
 
@@ -76,6 +85,8 @@ public class UsersOnlineController : MonoBehaviour
             userList.TryGetValue((string)userDisconnected["id"], out disconnectedUser);
             DestroyImmediate(disconnectedUser);
             userList.Remove((string)userDisconnected["id"]);
+
+            onUserChange?.Invoke((string)userDisconnected["id"], false);
         }
     }
 

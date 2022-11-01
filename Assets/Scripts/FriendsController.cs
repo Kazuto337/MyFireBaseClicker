@@ -4,6 +4,7 @@ using UnityEngine;
 using Firebase.Auth;
 using Firebase.Database;
 using UnityEngine.UI;
+using Firebase.Extensions;
 
 public class FriendsController : MonoBehaviour
 {
@@ -18,28 +19,36 @@ public class FriendsController : MonoBehaviour
     Dictionary<string, FriendRequest> frRequests = new Dictionary<string, FriendRequest>();
     Dictionary<string, OwnFriend> friendsDic = new Dictionary<string, OwnFriend>();
 
+    private void OnEnable()
+    {
+        GameState.OnMenuEnter += InitRequestController;
+        UsersOnlineController.onUserChange += GetFriendStatus;
+    }
+    private void OnDisable()
+    {
+        GameState.OnMenuEnter -= InitRequestController;
+        UsersOnlineController.onUserChange -= GetFriendStatus;
+    }
+
     public void GetFriendStatus(string id, bool status)
     {
         if (friendsDic.ContainsKey(id))
         {
             if (status)
             {
-                string m = "Se ha conectado tu amigo " + friendsDic[id].username;
-                NotificationController.instance.AddPopUpNotification(m);
-
+                string mssg = "Se ha conectado tu amigo " + friendsDic[id].username;
+                NotificationController.instance.AddPopUpNotification(mssg);
             }
             else
             {
-                string m = "Se ha desconectado tu amigo " + friendsDic[id].username;
-                NotificationController.instance.AddPopUpNotification(m);
-
+                string mssg = "Se ha desconectado tu amigo " + friendsDic[id].username;
+                NotificationController.instance.AddPopUpNotification(mssg);
             }
         }
     }
+
     public void InitRequestController()
     {
-
-
         string myId = FirebaseAuth.DefaultInstance.CurrentUser.UserId;
 
         var userOnlineRef = FirebaseDatabase.DefaultInstance
@@ -47,6 +56,7 @@ public class FriendsController : MonoBehaviour
 
         userOnlineRef.ValueChanged += HandleRequests;
 
+        GetUsername(myId);
     }
 
     private void HandleRequests(object sender, ValueChangedEventArgs args)
@@ -122,7 +132,7 @@ public class FriendsController : MonoBehaviour
         mDatabase = FirebaseDatabase.DefaultInstance.RootReference;
 
         string myId = FirebaseAuth.DefaultInstance.CurrentUser.UserId;
-        string username = mDatabase.Child("users/" + myId).Child("username").GetValueAsync().ToString();
+        string username = PlayerPrefs.GetString("Username");
         string requestId = myId + "request";
 
         FriendRequest friendRequest = new FriendRequest(myId, false, requestId, username);
@@ -138,7 +148,7 @@ public class FriendsController : MonoBehaviour
     public void AcceptFriendRequest(Notification notificacion)
     {
         string myId = FirebaseAuth.DefaultInstance.CurrentUser.UserId;
-        string myUsername = mDatabase.Child("users/" + myId).Child("username").GetValueAsync().ToString();
+        string myUsername = PlayerPrefs.GetString("Username");
 
         mDatabase = FirebaseDatabase.DefaultInstance.RootReference;
         mDatabase.Child("users").Child(myId).Child("friendRequests").Child(notificacion.fR.requestId).Child("accepted").SetValueAsync(true);
@@ -154,6 +164,21 @@ public class FriendsController : MonoBehaviour
         DestroyImmediate(notificacion.gameObject);
     }
 
+    void GetUsername(string userId)
+    {
+        FirebaseDatabase.DefaultInstance.GetReference("users/" + userId + "/username").GetValueAsync().ContinueWithOnMainThread(task =>
+        {
+            if (task.IsFaulted)
+            {
+                Debug.LogError("GetValueAsync encountered an error: " + task.Exception);
+            }
+            else if (task.IsCompleted)
+            {
+                DataSnapshot snapshot = task.Result;
+                PlayerPrefs.SetString("Username", snapshot.Value.ToString());
+            }
+        });
+    }
 
     [System.Serializable]
     public class FriendRequest
