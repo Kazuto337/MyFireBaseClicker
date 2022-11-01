@@ -41,14 +41,15 @@ public class UsersOnlineController : MonoBehaviour
         var userOnlineRef = FirebaseDatabase.DefaultInstance
         .GetReference("users-online");
 
+        SetUserOnline();
+
         mDatabase.Child("users-online").ChildAdded += HandleChildAdded;
         mDatabase.Child("users-online").ChildRemoved += HandleChildRemoved;
-
-        SetUserOnline();
     }
 
     private void HandleChildAdded(object sender, ChildChangedEventArgs args)
     {
+
         if (args.DatabaseError != null)
         {
             Debug.LogError(args.DatabaseError.Message);
